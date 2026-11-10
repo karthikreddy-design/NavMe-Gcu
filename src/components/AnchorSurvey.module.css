@@ -1,0 +1,242 @@
+.panel {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 3;
+  display: grid;
+  gap: 0.75rem;
+  width: min(25rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid rgb(92 217 255 / 35%);
+  border-radius: 1rem;
+  background: rgb(5 16 28 / 94%);
+  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 40%);
+  color: #effaff;
+  font-size: 0.82rem;
+  pointer-events: auto;
+  backdrop-filter: blur(16px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  color: #62dfff;
+  font-size: 0.63rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.newButton,
+.deleteButton,
+.cancel {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid rgb(130 210 235 / 35%);
+  border-radius: 0.5rem;
+  background: rgb(9 29 44 / 90%);
+  color: #e8faff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.newButton:hover,
+.deleteButton:hover,
+.cancel:hover {
+  background: #12506a;
+}
+
+.instructions {
+  color: #b7d5e0;
+  line-height: 1.45;
+}
+
+.panel p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.buildingList {
+  display: grid;
+  gap: 0.35rem;
+  max-height: 9rem;
+  overflow: auto;
+}
+
+.empty {
+  padding: 0.65rem;
+  border: 1px dashed rgb(130 210 235 / 28%);
+  border-radius: 0.55rem;
+  color: #94b5c2;
+  text-align: center;
+}
+
+.buildingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  border: 1px solid rgb(130 210 235 / 18%);
+  border-radius: 0.55rem;
+  background: rgb(9 29 44 / 55%);
+}
+
+.buildingName {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 0.15rem;
+  border: 0;
+  background: transparent;
+  color: #effaff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.buildingName span {
+  overflow: hidden;
+  color: #91b9c9;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+}
+
+.deleteButton {
+  border-color: rgb(255 125 125 / 30%);
+  color: #ffc2c2;
+  font-size: 0.72rem;
+}
+
+.form {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgb(130 210 235 / 18%);
+}
+
+.form h2 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.floorEditor {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgb(130 210 235 / 14%);
+}
+
+.floorEditor h3 {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.floorEditor > p,
+.floorAssignment > span,
+.addFloor > p {
+  color: #91b9c9;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.floorAssignment,
+.addFloor {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border: 1px solid rgb(130 210 235 / 18%);
+  border-radius: 0.55rem;
+  background: rgb(9 29 44 / 50%);
+}
+
+.panel select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgb(130 210 235 / 35%);
+  border-radius: 0.5rem;
+  background: rgb(9 29 44 / 90%);
+  color: #fff;
+  font: inherit;
+}
+
+.panel option {
+  background: #091d2c;
+  color: #fff;
+}
+
+.panel label {
+  display: grid;
+  gap: 0.3rem;
+  color: #d7eff7;
+  font-size: 0.76rem;
+}
+
+.panel input {
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgb(130 210 235 / 35%);
+  border-radius: 0.5rem;
+  background: rgb(9 29 44 / 90%);
+  color: #fff;
+  font: inherit;
+}
+
+.capture,
+.save {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #59dfff;
+  border-radius: 0.55rem;
+  background: #0c384d;
+  color: #fff;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.capture:hover:not(:disabled),
+.save:hover:not(:disabled) {
+  background: #12506a;
+}
+
+.save {
+  background: #075b72;
+}
+
+.capture:disabled,
+.save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.position,
+.message,
+.error {
+  overflow-wrap: anywhere;
+  color: #b7d5e0;
+  font-size: 0.72rem;
+}
+
+.error {
+  color: #ffc2c2;
+}
+
+@media (max-width: 600px) {
+  .panel {
+    top: 0.5rem;
+    left: 0.5rem;
+    width: min(25rem, calc(100vw - 1rem));
+    max-height: min(72dvh, 42rem);
+    padding: 0.8rem;
+  }
+}

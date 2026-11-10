@@ -1,0 +1,90 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  max-width: min(15rem, calc(100vw - 2rem));
+  padding: 0.55rem 0.8rem;
+  transform: translate(-50%, calc(-100% - 0.85rem));
+  border: 1px solid rgb(83 218 255 / 48%);
+  border-radius: 0.75rem;
+  background: rgb(7 20 34 / 88%);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 35%), 0 0 1.2rem rgb(29 170 255 / 18%);
+  color: #effaff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: left;
+  white-space: normal;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.label::after {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: 0.85rem;
+  background: linear-gradient(#57dfff, rgb(87 223 255 / 12%));
+  content: "";
+}
+
+.anchorPin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  transform: translate(-50%, -100%);
+  fill: rgb(5 26 40 / 96%);
+  stroke: #77ecff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 0.45rem rgb(29 198 255 / 75%));
+  pointer-events: none;
+}
+
+.label:hover,
+.label:focus-visible,
+.selected {
+  border-color: #81ecff;
+  background: rgb(11 39 58 / 96%);
+  box-shadow: 0 0.6rem 1.7rem rgb(0 0 0 / 45%), 0 0 1.3rem rgb(33 194 255 / 36%);
+}
+
+.label:focus-visible {
+  outline: 2px solid #a6f1ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .label {
+    max-width: min(11rem, calc(100vw - 1rem));
+    padding: 0.45rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
