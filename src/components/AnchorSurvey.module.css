@@ -182,7 +182,8 @@
   font-size: 0.76rem;
 }
 
-.panel input {
+.panel input,
+.panel textarea {
   min-width: 0;
   padding: 0.55rem 0.65rem;
   border: 1px solid rgb(130 210 235 / 35%);
@@ -190,6 +191,10 @@
   background: rgb(9 29 44 / 90%);
   color: #fff;
   font: inherit;
+}
+
+.panel textarea {
+  resize: vertical;
 }
 
 .capture,

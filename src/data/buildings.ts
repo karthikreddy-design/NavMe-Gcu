@@ -20,6 +20,7 @@ export type BuildingRoom = {
 export type Building = {
   id: string;
   name: string;
+  details?: string;
   position: WorldPosition;
   floors?: BuildingFloor[];
   rooms?: BuildingRoom[];
@@ -46,6 +47,8 @@ export function isBuildingList(value: unknown): value is Building[] {
       ids.has(building.id) ||
       typeof building.name !== "string" ||
       !building.name.trim() ||
+      (building.details !== undefined &&
+        typeof building.details !== "string") ||
       typeof position !== "object" ||
       position === null ||
       !Number.isFinite(position.x) ||

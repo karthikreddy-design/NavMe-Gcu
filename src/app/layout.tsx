@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "GCU-NavMe",
-  description: "Interactive Matterport tour of Grand Canyon University.",
+  description: "Interactive Matterport tour of Garden City University.",
 };
 
 export const viewport: Viewport = {

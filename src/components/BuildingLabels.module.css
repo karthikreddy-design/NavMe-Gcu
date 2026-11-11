@@ -1,70 +1,97 @@
 .layer {
   position: absolute;
   inset: 0;
+  z-index: 4;
   overflow: hidden;
   pointer-events: none;
 }
 
 .marker {
   position: absolute;
-  width: 0;
-  height: 0;
+  height: 36px;
   pointer-events: none;
+}
+
+.connectors {
+  position: absolute;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  stroke: rgb(174 204 222 / 55%);
+  stroke-width: 1;
+}
+
+.crowded {
+  inset: 16px auto 80px 16px;
+  width: min(176px, calc(100% - 32px));
+  overflow: auto;
+  pointer-events: auto;
+}
+
+.crowded .marker {
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.crowded .anchorPin {
+  display: none;
 }
 
 .label {
   position: absolute;
+  z-index: 2;
   top: 0;
   left: 0;
   display: inline-flex;
   align-items: center;
-  max-width: min(15rem, calc(100vw - 2rem));
-  padding: 0.55rem 0.8rem;
-  transform: translate(-50%, calc(-100% - 0.85rem));
-  border: 1px solid rgb(83 218 255 / 48%);
-  border-radius: 0.75rem;
-  background: rgb(7 20 34 / 88%);
-  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 35%), 0 0 1.2rem rgb(29 170 255 / 18%);
+  width: 100%;
+  height: 36px;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid rgb(184 210 228 / 30%);
+  border-radius: 8px;
+  background: #111d2a;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 24%);
   color: #effaff;
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 650;
+  font: 600 13px Arial, sans-serif;
   line-height: 1.2;
-  text-align: left;
-  white-space: normal;
+  text-align: center;
+  white-space: nowrap;
   backdrop-filter: blur(12px);
   cursor: pointer;
   pointer-events: auto;
   transition:
     border-color 150ms ease,
     background-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    box-shadow 150ms ease;
 }
 
 .label::after {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 1px;
-  height: 0.85rem;
-  background: linear-gradient(#57dfff, rgb(87 223 255 / 12%));
-  content: "";
+  content: none;
+}
+
+.label span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .anchorPin {
   position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 16px;
+  height: 16px;
   transform: translate(-50%, -100%);
   fill: rgb(5 26 40 / 96%);
   stroke: #77ecff;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.8;
-  filter: drop-shadow(0 0 0.45rem rgb(29 198 255 / 75%));
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 30%));
   pointer-events: none;
 }
 
@@ -72,19 +99,11 @@
 .label:focus-visible,
 .selected {
   border-color: #81ecff;
-  background: rgb(11 39 58 / 96%);
-  box-shadow: 0 0.6rem 1.7rem rgb(0 0 0 / 45%), 0 0 1.3rem rgb(33 194 255 / 36%);
+  background: #0b273a;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
 }
 
 .label:focus-visible {
   outline: 2px solid #a6f1ff;
   outline-offset: 3px;
-}
-
-@media (max-width: 600px) {
-  .label {
-    max-width: min(11rem, calc(100vw - 1rem));
-    padding: 0.45rem 0.6rem;
-    font-size: 0.75rem;
-  }
 }

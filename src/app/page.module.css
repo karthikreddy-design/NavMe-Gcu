@@ -24,12 +24,13 @@
 
 .status {
   position: absolute;
-  inset: 0;
+  inset: auto 1rem 1rem;
   z-index: 1;
   display: grid;
   place-items: center;
-  padding: 1.5rem;
-  background: #080808;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: rgb(8 8 8 / 90%);
   color: #fff;
   text-align: center;
   pointer-events: none;
@@ -38,6 +39,124 @@
 .error {
   max-width: 32rem;
   line-height: 1.5;
+}
+
+.loadingScreen {
+  inset: 0;
+  z-index: 10;
+  padding: 2rem;
+  border-radius: 0;
+  background: #000;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  transform: translateY(0);
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.loadingScreen.loadingExit {
+  opacity: 0;
+}
+
+.loadingExit .loadingContent {
+  transform: translateY(-12px);
+}
+
+.universityLogo {
+  width: clamp(120px, 16vw, 180px);
+  height: auto;
+  flex-shrink: 0;
+}
+
+.motto {
+  margin: 8px 0 30px;
+  font-size: clamp(12px, 1.7vw, 17px);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+}
+
+.universityName {
+  margin: 0;
+  font-size: clamp(20px, 3.4vw, 40px);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.1em;
+  text-wrap: balance;
+}
+
+.loadingProgress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 48px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(255 255 255 / 20%);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+  .loadingScreen,
+  .loadingContent { transition: none; }
+  .loadingExit .loadingContent { transform: none; }
+}
+
+.loadingRetry {
+  margin-top: 18px;
+  padding: 8px 12px;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 6px;
+  background: #000;
+  color: #fff;
+  font: 12px Arial, sans-serif;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.loadingRetry:hover,
+.loadingRetry:focus-visible {
+  border-color: #fff;
+  outline-offset: 4px;
+}
+
+.connectionError {
+  inset: auto 1rem 1rem;
+  padding: 1rem;
+  border: 1px solid rgb(255 148 148 / 50%);
+  border-radius: 0.75rem;
+  background: rgb(20 12 12 / 94%);
+}
+
+.retry {
+  padding: 0.65rem 1rem;
+  border: 1px solid #81ecff;
+  border-radius: 0.5rem;
+  background: #0b273a;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .selection {
@@ -72,6 +191,24 @@
   background: rgb(47 15 20 / 94%);
   color: #ffe4e4;
   font-size: 0.8rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.navigationNotice {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 4;
+  max-width: min(32rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  transform: translateX(-50%);
+  border: 1px solid rgb(255 203 112 / 45%);
+  border-radius: 0.7rem;
+  background: rgb(41 29 10 / 92%);
+  color: #ffe8bd;
+  font-size: 0.78rem;
   line-height: 1.4;
   pointer-events: none;
 }

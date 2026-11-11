@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSurveyMode } from "./useSurveyMode";
 import type { MpSdk } from "@matterport/sdk";
 import type {
   Building,
@@ -14,7 +15,7 @@ type Props = {
   buildings: readonly Building[];
   storageReady: boolean;
   storageError: string;
-  onSave: (buildings: Building[]) => boolean;
+  onSave: (buildings: Building[]) => Promise<boolean>;
 };
 
 type PointerHit = {
@@ -27,15 +28,6 @@ type CameraSnapshot = {
   rotation: { x: number; y: number };
 };
 
-function subscribeToLocation(onChange: () => void) {
-  window.addEventListener("popstate", onChange);
-  return () => window.removeEventListener("popstate", onChange);
-}
-
-function isSurveyEnabled() {
-  return new URLSearchParams(window.location.search).get("survey") === "1";
-}
-
 export default function AnchorSurvey({
   sdk,
   buildings,
@@ -43,15 +35,12 @@ export default function AnchorSurvey({
   storageError,
   onSave,
 }: Props) {
-  const enabled = useSyncExternalStore(
-    subscribeToLocation,
-    isSurveyEnabled,
-    () => false,
-  );
+  const enabled = useSurveyMode();
   const captureArmedRef = useRef(false);
   const captureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [buildingId, setBuildingId] = useState("");
   const [buildingName, setBuildingName] = useState("");
+  const [buildingDetails, setBuildingDetails] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [availableFloors, setAvailableFloors] = useState<
     MpSdk.Floor.FloorData[]
@@ -152,6 +141,7 @@ export default function AnchorSurvey({
     setEditingId(null);
     setBuildingId("");
     setBuildingName("");
+    setBuildingDetails("");
     setBuildingFloors([]);
     setFloorChoice("");
     setMessage("");
@@ -162,6 +152,7 @@ export default function AnchorSurvey({
     setEditingId(building.id);
     setBuildingId(building.id);
     setBuildingName(building.name);
+    setBuildingDetails(building.details ?? "");
     setBuildingFloors(building.floors ?? []);
     setFloorChoice("");
     setMessage(`Editing ${building.name}. Its saved anchor is retained unless you recapture it.`);
@@ -179,7 +170,7 @@ export default function AnchorSurvey({
     setMessage("Capture armed. Aim at the intended point on the building in the scan.");
   };
 
-  const saveBuilding = () => {
+  const saveBuilding = async () => {
     const id = buildingId.trim();
     const name = buildingName.trim();
     if (!id || !name) {
@@ -211,10 +202,11 @@ export default function AnchorSurvey({
       ...existingBuilding,
       id,
       name,
+      details: buildingDetails.trim() || undefined,
       position,
       floors: buildingFloors,
     });
-    if (!onSave(updated)) {
+    if (!(await onSave(updated))) {
       setMessage("The building was not saved. Check the browser storage error above.");
       return;
     }
@@ -223,6 +215,7 @@ export default function AnchorSurvey({
     setEditingId(null);
     setBuildingId("");
     setBuildingName("");
+    setBuildingDetails("");
     setBuildingFloors([]);
     setFloorChoice("");
     setMessage(`${name} saved. Its label is now visible in the viewer.`);
@@ -262,13 +255,13 @@ export default function AnchorSurvey({
     );
   };
 
-  const deleteBuilding = (building: Building) => {
+  const deleteBuilding = async (building: Building) => {
     if (!window.confirm(`Delete the ${building.name} label?`)) {
       return;
     }
 
     const updated = buildings.filter((item) => item.id !== building.id);
-    if (onSave(updated)) {
+    if (await onSave(updated)) {
       if (editingId === building.id) {
         beginAdd();
       }
@@ -348,6 +341,16 @@ export default function AnchorSurvey({
               setMessage("");
             }}
             placeholder="Enter the confirmed building name"
+            disabled={!storageReady || Boolean(storageError)}
+          />
+        </label>
+        <label>
+          Space details
+          <textarea
+            value={buildingDetails}
+            onChange={(event) => setBuildingDetails(event.target.value)}
+            placeholder="Add information visitors should see for this space"
+            rows={4}
             disabled={!storageReady || Boolean(storageError)}
           />
         </label>

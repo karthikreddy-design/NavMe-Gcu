@@ -1,0 +1,146 @@
+[
+  {
+    "id": "Libruary",
+    "name": "Libruary",
+    "position": {
+      "x": -13.006532472266343,
+      "y": 3.4255511425858356,
+      "z": 8.810019503877642
+    },
+    "floors": [
+      {
+        "id": "pd0i1c4yq9w0y2zsb07ed23sb",
+        "name": "Floor 2",
+        "matterportFloorId": "pd0i1c4yq9w0y2zsb07ed23sb",
+        "matterportSequence": 1
+      }
+    ],
+    "details": "The university library provides a wide collection of books, academic journals, research materials, and digital resources to support students' learning and knowledge development. It offers a quiet and comfortable environment for reading, studying, and conducting research."
+  },
+  {
+    "id": "Front Office",
+    "name": "Front Office",
+    "position": {
+      "x": 49.05767106863393,
+      "y": -3.8746526324663826,
+      "z": -45.60427948818741
+    },
+    "floors": [
+      {
+        "id": "tsmq1wak12rhgn0mawksxcwcd",
+        "name": "Floor 1",
+        "matterportFloorId": "tsmq1wak12rhgn0mawksxcwcd",
+        "matterportSequence": 0
+      }
+    ],
+    "details": "The university front office serves as the main point of contact for students, parents, visitors, and staff, providing essential information and assistance. It handles general enquiries, admissions guidance, administrative support, and directs visitors to the appropriate departments."
+  },
+  {
+    "id": "Indore Auditorium",
+    "name": "Indore Auditorium",
+    "position": {
+      "x": -17.802339545302605,
+      "y": -3.2563498691446533,
+      "z": 26.036502726390186
+    },
+    "floors": [
+      {
+        "id": "tsmq1wak12rhgn0mawksxcwcd",
+        "name": "Floor 1",
+        "matterportFloorId": "tsmq1wak12rhgn0mawksxcwcd",
+        "matterportSequence": 0
+      }
+    ],
+    "details": "Indoor auditorium is a spacious venue designed to host seminars, conferences, workshops, cultural events, and guest lectures. It provides a comfortable seating arrangement, a stage, and audio-visual facilities for presentations and performances."
+  },
+  {
+    "id": "Cafeteria",
+    "name": "Cafeteria",
+    "position": {
+      "x": -47.693838533011906,
+      "y": -2.356044564727823,
+      "z": -93.18740429400519
+    },
+    "floors": [
+      {
+        "id": "tsmq1wak12rhgn0mawksxcwcd",
+        "name": "Floor 1",
+        "matterportFloorId": "tsmq1wak12rhgn0mawksxcwcd",
+        "matterportSequence": 0
+      }
+    ],
+    "details": "Cafeteria provides a comfortable space for students, faculty, and staff to enjoy meals, snacks, and refreshments. It offers a variety of food options and a relaxing environment for dining, socializing, and taking breaks between classes."
+  },
+  {
+    "id": "Cafeteria 2",
+    "name": "Cafeteria 2",
+    "details": "Cafeteria provides a comfortable space for students, faculty, and staff to enjoy meals, snacks, and refreshments. It offers a variety of food options and a relaxing environment for dining, socializing, and taking breaks between classes.",
+    "position": {
+      "x": -52.284400546011696,
+      "y": 1.311993956565857,
+      "z": -103.17474766488364
+    },
+    "floors": [
+      {
+        "id": "pd0i1c4yq9w0y2zsb07ed23sb",
+        "name": "Floor 2",
+        "matterportFloorId": "pd0i1c4yq9w0y2zsb07ed23sb",
+        "matterportSequence": 1
+      }
+    ]
+  },
+  {
+    "id": "IIPC",
+    "name": "IIPC",
+    "position": {
+      "x": 36.881393801963085,
+      "y": 3.4664569561757066,
+      "z": 21.99997557833612
+    },
+    "floors": [
+      {
+        "id": "pd0i1c4yq9w0y2zsb07ed23sb",
+        "name": "Floor 2",
+        "matterportFloorId": "pd0i1c4yq9w0y2zsb07ed23sb",
+        "matterportSequence": 1
+      }
+    ],
+    "details": "The IIPC workspace provides a dedicated environment for collaboration between the university and industry professionals. It supports industry interactions, placement activities, internships, career guidance, and initiatives that help students develop professional skills."
+  },
+  {
+    "id": "Mac Lab",
+    "name": "Mac Lab",
+    "position": {
+      "x": -79.0145366467006,
+      "y": -1.0716978349178918,
+      "z": -0.9807230811743656
+    },
+    "floors": [
+      {
+        "id": "tsmq1wak12rhgn0mawksxcwcd",
+        "name": "Floor 1",
+        "matterportFloorId": "tsmq1wak12rhgn0mawksxcwcd",
+        "matterportSequence": 0
+      }
+    ],
+    "details": "The Mac Lab is a modern computer laboratory equipped with Apple Mac systems to support students in learning, designing, programming, and developing digital projects. It provides a collaborative environment with the necessary tools and software for practical learning, creativity, and technical skill development."
+  },
+  {
+    "id": "Indoor Sports",
+    "name": "Indoor Sports",
+    "details": "Indoor sports facility provides a dedicated space for students to participate in various indoor games and recreational activities. It encourages physical fitness, teamwork, sportsmanship, and healthy competition in a comfortable environment.",
+    "position": {
+      "x": -40.19770704146098,
+      "y": 4.927113410118625,
+      "z": -99.41332368864019
+    },
+    "floors": [
+      {
+        "id": "h0ysdfsrzyt6errbx1x8g92wc",
+        "name": "Floor 3",
+        "matterportFloorId": "h0ysdfsrzyt6errbx1x8g92wc",
+        "matterportSequence": 2
+      }
+    ]
+  }
+]
