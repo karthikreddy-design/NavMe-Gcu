@@ -3,8 +3,10 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { isBuildingList } from "@/data/buildings";
 import defaultBuildings from "@/data/defaultBuildings.json";
+import { canEdit } from "@/lib/adminAuth";
+import { dataDirectory } from "@/lib/dataDirectory";
 
-const directory = path.join(process.cwd(), ".data");
+const directory = dataDirectory;
 const file = path.join(directory, "buildings.json");
 let writes: Promise<unknown> = Promise.resolve();
 
@@ -28,6 +30,7 @@ export async function GET() {
 }
 
 async function save(request: Request, initialize: boolean) {
+  if (!(await canEdit(request))) return Response.json({ error: "Admin authorization required." }, { status: 403 });
   const origin = request.headers.get("origin");
   if (origin && new URL(origin).host !== request.headers.get("host")) {
     return Response.json({ error: "Invalid origin" }, { status: 403 });

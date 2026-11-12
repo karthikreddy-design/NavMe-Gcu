@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import dynamic from "next/dynamic";
 import type { MpSdk } from "@matterport/sdk";
-import AnchorSurvey from "@/components/AnchorSurvey";
+import BillboardExperience from "@/components/BillboardExperience";
+import BillboardCard from "@/components/BillboardCard";
+import type { Billboard } from "@/data/billboards";
 import BuildingNavigationPanel from "@/components/BuildingNavigationPanel";
 import BuildingLabels from "@/components/BuildingLabels";
 import { useSurveyMode } from "@/components/useSurveyMode";
@@ -16,6 +19,8 @@ import {
   toSdkRotation,
 } from "@/data/walkthroughDestinations";
 import styles from "./page.module.css";
+
+const SurveyWorkspace = dynamic(() => import("@/components/SurveyWorkspace"), { ssr: false });
 
 const GCU_SPACE_ID = "jdjvM17BPEh";
 const SDK_CONNECTION_TIMEOUT_MS = 60_000;
@@ -157,22 +162,7 @@ async function loadSharedBuildings() {
   try {
     const response = await fetch("/api/buildings", { cache: "no-store" });
     if (!response.ok) throw new Error("Could not load shared labels");
-    let buildings: unknown = await response.json();
-    if (buildings === null) {
-      const local = readStorageSnapshot();
-      if (local.error) throw new Error(local.error);
-      if (local.buildings.length === 0) {
-        publishStorageSnapshot(local);
-        return;
-      }
-      const migration = await fetch("/api/buildings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(local.buildings),
-      });
-      if (!migration.ok) throw new Error("Could not migrate browser labels");
-      buildings = await migration.json();
-    }
+    const buildings: unknown = await response.json();
     if (!isBuildingList(buildings)) throw new Error("Invalid shared labels");
     publishStorageSnapshot({ buildings, ready: true, error: "" });
   } catch {
@@ -187,6 +177,14 @@ function getBuildingStorageSnapshot() {
 
 export default function Home() {
   const surveyMode = useSurveyMode();
+  const [surveyAuthorized, setSurveyAuthorized] = useState(false);
+  const [billboardRevision, setBillboardRevision] = useState(0);
+  const [openBillboard, setOpenBillboard] = useState<Billboard | null>(null);
+  const updateAuthorization = useCallback((authorized: boolean) => {
+    setSurveyAuthorized(authorized);
+    setOpenBillboard(null);
+  }, []);
+  const refreshBillboards = useCallback(() => setBillboardRevision((n) => n + 1), []);
   const containerRef = useRef<HTMLDivElement>(null);
   const connectionRef = useRef<Promise<MpSdk> | null>(null);
   const currentPoseRef = useRef<MpSdk.Camera.Pose | null>(null);
@@ -618,14 +616,14 @@ export default function Home() {
   };
 
   const saveBuildings = async (updatedBuildings: Building[]) => {
-    if (!storage.ready || storage.error) {
+    if (!surveyMode || !surveyAuthorized || !storage.ready || storage.error) {
       return false;
     }
 
     try {
       const response = await fetch("/api/buildings", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-survey-mode": "1" },
         body: JSON.stringify(updatedBuildings),
       });
       if (!response.ok) throw new Error("Shared label save failed");
@@ -658,11 +656,17 @@ export default function Home() {
 
   return (
     <main
-      className={styles.viewer}
+      className={`${styles.viewer} ${selectedBuilding ? styles.withSelectedSpace : ""}`}
       aria-label="GCU Matterport tour"
       ref={setViewerElement}
     >
       <div className={styles.container} ref={containerRef} />
+      <BillboardExperience sdk={sdk} viewer={viewerElement} admin={surveyMode && surveyAuthorized}
+        revision={billboardRevision} onOpen={setOpenBillboard} />
+      {openBillboard && <BillboardCard billboard={openBillboard} onClose={() => setOpenBillboard(null)} />}
+      {surveyMode && <SurveyWorkspace sdk={sdk} buildings={storage.buildings}
+        storageReady={storage.ready} storageError={storage.error} onSaveBuildings={saveBuildings}
+        onAuthorization={updateAuthorization} onBillboardsChanged={refreshBillboards} onPreview={setOpenBillboard} />}
       {sdk && viewerElement && (
         <>
           <BuildingLabels
@@ -678,13 +682,6 @@ export default function Home() {
                   currentMode === sdk.Mode.Mode.FLOORPLAN)
             }
             onSelect={focusBuilding}
-          />
-          <AnchorSurvey
-            sdk={sdk}
-            buildings={storage.buildings}
-            storageReady={storage.ready}
-            storageError={storage.error}
-            onSave={saveBuildings}
           />
           {storage.error && (
             <p className={styles.dataError} role="alert">

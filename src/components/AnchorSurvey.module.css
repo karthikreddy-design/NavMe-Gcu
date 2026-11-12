@@ -1,12 +1,12 @@
 .panel {
   position: absolute;
-  top: 1rem;
+  top: 74px;
   left: 1rem;
-  z-index: 3;
+  z-index: 12;
   display: grid;
   gap: 0.75rem;
   width: min(25rem, calc(100vw - 2rem));
-  max-height: calc(100dvh - 2rem);
+  max-height: calc(100dvh - 92px);
   overflow: auto;
   padding: 1rem;
   border: 1px solid rgb(92 217 255 / 35%);
@@ -238,7 +238,7 @@
 
 @media (max-width: 600px) {
   .panel {
-    top: 0.5rem;
+    top: 70px;
     left: 0.5rem;
     width: min(25rem, calc(100vw - 1rem));
     max-height: min(72dvh, 42rem);

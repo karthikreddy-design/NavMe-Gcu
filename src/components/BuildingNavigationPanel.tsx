@@ -51,6 +51,7 @@ export default function BuildingNavigationPanel({
           {error}
         </p>
       )}
+      <div className={styles.actions}>
       <button
         className={styles.viewSpace}
         type="button"
@@ -67,6 +68,7 @@ export default function BuildingNavigationPanel({
       >
         Return to full campus
       </button>
+      </div>
     </aside>
   );
 }

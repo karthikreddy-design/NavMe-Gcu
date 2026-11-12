@@ -6,7 +6,8 @@
     "dev": "next dev --port 443",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:billboards": "npm run build && node --test tests/billboards.test.mjs"
   },
   "dependencies": {
     "@matterport/sdk": "^1.6.2",

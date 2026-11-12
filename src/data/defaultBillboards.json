@@ -1,0 +1,341 @@
+[
+  {
+    "id": "b82dc9e7-f13d-492f-98ae-0513ecd34456",
+    "title": "ಕನ್ನಡ (Kannada)",
+    "description": "Explore a diverse collection of Kannada literature, including novels, poetry, short stories, biographies, and academic books. Discover the richness of Kannada language, culture, and literary heritage through this dedicated collection.",
+    "position": {
+      "x": -13.776537724332995,
+      "y": 3.409860109208617,
+      "z": 13.555548411841372
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "9ff1a439-2d7d-47c2-808e-8b841456d98c",
+    "title": "Literature",
+    "description": "Explore a diverse collection of literary works, including novels, poetry, short stories, plays, biographies, and classic writings. Discover inspiring stories, creative expressions, and timeless works from renowned authors across different genres.",
+    "position": {
+      "x": -13.439443551976742,
+      "y": 3.4201538880246716,
+      "z": 19.332501353345656
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "ddf5fee2-2ecf-40d8-802c-ed3e496f343c",
+    "title": "Hindi",
+    "description": "Discover a wide range of Hindi books covering fiction, non-fiction, educational subjects, poetry, and inspiring stories. Explore knowledge, imagination, and learning through books written in the Hindi language.",
+    "position": {
+      "x": -13.072519704320904,
+      "y": 3.4212408158168577,
+      "z": 22.0557169646103
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "71bafceb-ae22-4611-873f-1a93166aa03e",
+    "title": "Journalism",
+    "description": "Explore a collection of books covering journalism, mass communication, news reporting, media ethics, investigative journalism, digital media, and communication studies. Gain insights into the world of media, news, and modern journalism practices.",
+    "position": {
+      "x": -13.01391803375696,
+      "y": 3.4187920801306864,
+      "z": 24.805927157718465
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "f4804ecf-2bd8-4f0f-a06c-f6fd0515906b",
+    "title": "General Management",
+    "description": "Explore a collection of books covering business management, leadership, organizational behaviour, strategic planning, human resource management, marketing, and entrepreneurship. Enhance your managerial knowledge and develop essential skills for effective decision-making and professional growth.",
+    "position": {
+      "x": -22.993700397180948,
+      "y": 3.4274467475803405,
+      "z": 7.539457771731783
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "2bd329cc-0113-4ee0-a193-744b4ba8114a",
+    "title": "Hotel Management",
+    "description": "Explore books covering hospitality management, hotel operations, food and beverage services, front office management, housekeeping, tourism, and customer service. Gain valuable knowledge and practical insights into the hospitality and hotel industry.",
+    "position": {
+      "x": -22.571049213766138,
+      "y": 3.5596584212312434,
+      "z": 25.25730998521763
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "331c8b7c-4bc5-4dbb-a038-3e039a9d3f61",
+    "title": "Book Bank - SC/ST Students",
+    "description": "A dedicated collection of academic books and learning resources available to SC/ST students to support their educational journey. This initiative promotes equal access to knowledge, encourages academic excellence, and helps students achieve their learning goals.",
+    "position": {
+      "x": -22.129236654128288,
+      "y": 3.4378627947177565,
+      "z": 31.09221059445483
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "9fde8060-e2ef-4b74-aeb9-ad6ae280da3a",
+    "title": "Management Book",
+    "description": "Discover books covering management principles, leadership, business strategies, organizational development, planning, and decision-making. Build essential management knowledge and gain valuable insights into effective business and organizational practices.",
+    "position": {
+      "x": -22.69639049966337,
+      "y": 3.532484056747527,
+      "z": 20.775744062769096
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "9bea760b-b196-4aa7-8808-571c289b737d",
+    "title": "Events & Programs",
+    "description": "The auditorium hosts a variety of university events, including seminars, conferences, workshops, guest lectures, cultural programs, and academic celebrations. It provides a platform for students and faculty to participate, learn, and showcase their talents.",
+    "position": {
+      "x": -17.10888870317558,
+      "y": -3.2444268351318044,
+      "z": 20.922057330621136
+    },
+    "media": [
+      {
+        "id": "8a29d62b-13bc-4de5-9aef-abcbf0f8ec2e.jpg",
+        "name": "WhatsApp Image 2026-11-12 at 3.49.29 PM.jpeg",
+        "type": "image",
+        "url": "/api/media/8a29d62b-13bc-4de5-9aef-abcbf0f8ec2e.jpg"
+      }
+    ],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "6749fbfc-6004-40fc-9917-81a5a0710646",
+    "title": "Graduation & Certificate Distribution",
+    "description": "The auditorium stage serves as a venue for graduation ceremonies and certificate distribution, celebrating students' academic achievements and successful completion of their courses. It provides a memorable setting to recognize their dedication, hard work, and accomplishments.",
+    "position": {
+      "x": -18.26958273630941,
+      "y": -2.616197943846749,
+      "z": 9.042958729331811
+    },
+    "media": [
+      {
+        "id": "457ce3d9-be3d-4d1c-b23d-f6fc9ae3bc30.jpg",
+        "name": "WhatsApp Image 2026-11-12 at 3.55.12 PM.jpeg",
+        "type": "image",
+        "url": "/api/media/457ce3d9-be3d-4d1c-b23d-f6fc9ae3bc30.jpg"
+      }
+    ],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "eab71fa3-e624-4bca-9654-dcafbb0a1bb3",
+    "title": "Welcome & Student Assistance",
+    "description": "The University Front Office serves as the primary point of contact for students, parents, and visitors. It provides guidance and assistance with general enquiries, admissions, university information, and administrative services, ensuring a smooth and welcoming experience for everyone.",
+    "position": {
+      "x": 43.542302366254305,
+      "y": -4.20354920554993,
+      "z": -47.911066790981714
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "143fbe72-14a1-49bf-b5b1-b63afb4389ba",
+    "title": "Cafe Levista",
+    "description": "Cafe Levista offers a welcoming space for students, faculty, and visitors to enjoy freshly brewed coffee, delicious beverages, and refreshments. It provides a relaxing atmosphere to unwind, catch up with friends, and enjoy a refreshing break during the day.",
+    "position": {
+      "x": -56.15780551417309,
+      "y": -2.3502187191543644,
+      "z": -95.61607885091401
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "d27b96df-c6c0-4ac0-95f1-6f0201188a37",
+    "title": "JustVend",
+    "description": "JustVend provides a convenient self-service vending experience, allowing students, faculty, and visitors to quickly purchase snacks, beverages, and everyday refreshments. Enjoy easy access to quick refreshments anytime on campus.",
+    "position": {
+      "x": -58.09215194058312,
+      "y": -2.31114922056984,
+      "z": -98.98140357609608
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "044c0a04-f4e9-4580-be33-da75e50b5a40",
+    "title": "Convenience & Stationery",
+    "description": "The Convenience & Stationery store provides students, faculty, and visitors with easy access to essential stationery, academic supplies, and everyday products. It offers a convenient place to find study materials and other useful items to support daily campus needs.",
+    "position": {
+      "x": -39.810712054906794,
+      "y": -2.3217697625196956,
+      "z": -94.80460753484262
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "55ed7103-15c8-4bd4-b02a-663be12ff8ea",
+    "title": "Addies Basket",
+    "description": "Addies Basket offers a delightful range of refreshing beverages and delicious refreshments in a welcoming atmosphere. It is a perfect spot for students, faculty, and visitors to relax, enjoy their favourite drinks, and recharge during the day.",
+    "position": {
+      "x": -32.926184777951576,
+      "y": -2.3534671668877962,
+      "z": -108.03739790419775
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "8c89b247-dcfa-4b98-b4ab-14bf9cc83787",
+    "title": "Jai Foods",
+    "description": "Jai Foods brings the rich and spicy flavours of Andhra cuisine to campus, offering a variety of delicious traditional dishes prepared with authentic Andhra spices. It is a great place for students, faculty, and visitors to enjoy flavourful meals and experience the taste of Andhra food.",
+    "position": {
+      "x": -37.02961282102548,
+      "y": -2.356563983456357,
+      "z": -107.49861429926682
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "6f3b287b-51ab-4e71-a3bf-a8116a701e8d",
+    "title": "Vintage Cafe",
+    "description": "Vintage Café offers a delicious variety of special food items, including flavourful fried rice and other tasty favourites. It provides students, faculty, and visitors with a welcoming place to enjoy satisfying meals, explore unique flavours, and take a refreshing break during the day.",
+    "position": {
+      "x": -43.645589731728975,
+      "y": -2.3618996010604416,
+      "z": -107.69444649383662
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "5c7be36e-27a5-476d-b1c3-56011c1aa7b2",
+    "title": "Water Falls Juice Center",
+    "description": "Waterfalls Juice Centre offers a refreshing selection of freshly prepared fruit juices, delicious beverages, and healthy drinks. It is a perfect spot for students, faculty, and visitors to enjoy refreshing drinks and recharge during their campus day.",
+    "position": {
+      "x": -53.22720177456552,
+      "y": -2.3443398990646043,
+      "z": -108.89134394086888
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "e6dfcbb3-abe8-4104-bae2-93cda2f46269",
+    "title": "Digital Learning & Innovation",
+    "description": "The MAC Lab provides students with a dedicated space to develop technical knowledge, explore digital tools, and gain hands-on learning experience. It supports practical activities, creative exploration, and skill development in a technology-focused environment.",
+    "position": {
+      "x": -77.47000392466326,
+      "y": -1.8410901773547497,
+      "z": -1.9017403966208595
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "b412e00a-9c76-4501-be26-d301b2a324a0",
+    "title": "University Cafeteria",
+    "description": "The University Cafeteria offers a wide variety of delicious food options to satisfy different tastes and preferences. It provides students, faculty, and visitors with a comfortable dining space to enjoy meals, snacks, and refreshments throughout the day.",
+    "position": {
+      "x": -56.67199997493936,
+      "y": 1.3142092506698482,
+      "z": -105.67655547995608
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "0fc8cc83-6ba7-499d-8488-29ce94802d18",
+    "title": "Food For Every Taste",
+    "description": "The university cafeteria brings together a variety of food choices, offering something delicious for everyone. Whether it's a quick bite, a satisfying meal, or a refreshing break, it provides a welcoming space for students and staff to enjoy good food and spend time together.",
+    "position": {
+      "x": -44.90339074297597,
+      "y": 1.3216717442389292,
+      "z": -105.59463178506527
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "71dea639-acb1-4e07-aac6-2b7a649c2e5e",
+    "title": "Industry Institute & Career Development",
+    "description": "The Industry-Institute Partnership Cell (IIPC) connects students with industry professionals and organizations through collaborations, internships, workshops, training programs, and career development initiatives. It helps students gain practical exposure, develop industry-relevant skills, and prepare for future career opportunities.",
+    "position": {
+      "x": 29.895018488260153,
+      "y": 0.11791534752318333,
+      "z": 25.347346295512693
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "e5329c43-dbf8-4293-9bf7-f849b7c492aa",
+    "title": "AR Development & Innovation Workspace",
+    "description": "The IIPC workspace provides a dedicated environment for professionals and teams working on Augmented Reality (AR) projects. It supports the creation, development, and exploration of immersive AR experiences, encouraging innovation, creativity, and hands-on technical collaboration.",
+    "position": {
+      "x": 36.62013949865687,
+      "y": -0.054226533116149556,
+      "z": 25.075927938968608
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "91dc1830-7493-4835-8b8e-1b906ee04ca8",
+    "title": "Badminton Court",
+    "description": "The university badminton court offers a dedicated space for students to enjoy and practise badminton. It provides an opportunity to develop playing skills, improve fitness, and build coordination while enjoying friendly matches and sports activities.",
+    "position": {
+      "x": -38.777867524165245,
+      "y": 4.9501587389015915,
+      "z": -103.49683118482042
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  },
+  {
+    "id": "31e55c74-742e-4677-a4c7-6fb6e43497fe",
+    "title": "Indoor Sports & Recreation",
+    "description": "The Indoor Sports Centre provides students with opportunities to stay active, improve their fitness, and enjoy various indoor games. It encourages teamwork, sportsmanship, recreation, and a healthy lifestyle within the university campus.",
+    "position": {
+      "x": -59.29916457135737,
+      "y": 4.97262510395244,
+      "z": -104.64807694472498
+    },
+    "media": [],
+    "published": true,
+    "enabled": true
+  }
+]
