@@ -2,10 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
+import { flushSync } from "react-dom";
+import Image from "next/image";
 import type { MpSdk } from "@matterport/sdk";
 import BillboardExperience from "@/components/BillboardExperience";
+import WalkthroughPointer from "@/components/WalkthroughPointer";
+import ViewModeControls, { type CampusView } from "@/components/ViewModeControls";
 import BillboardCard from "@/components/BillboardCard";
 import type { Billboard } from "@/data/billboards";
+import { getCampusOverviewFraming, getFloorPlanFraming } from "@/data/floorPlanFraming";
 import BuildingNavigationPanel from "@/components/BuildingNavigationPanel";
 import BuildingLabels from "@/components/BuildingLabels";
 import { useSurveyMode } from "@/components/useSurveyMode";
@@ -132,11 +137,74 @@ function waitForStableCamera(sdk: MpSdk) {
   });
 }
 
+
+async function restoreCampusOverview(sdk: MpSdk, container: HTMLElement) {
+  await sdk.Mode.current.waitUntil((mode) => mode !== null && mode !== sdk.Mode.Mode.TRANSITIONING);
+  await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+  await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { transition: sdk.Camera.TransitionType.INSTANT });
+  await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+  // Show all floors before framing: showAll itself recenters the orbit camera.
+  await sdk.Floor.showAll();
+  await sdk.Floor.current.waitUntil((floor) => floor.sequence === -1);
+  await waitForStableCamera(sdk);
+  const rect = container.getBoundingClientRect();
+  const framing = getCampusOverviewFraming(rect.width / rect.height);
+  // Reapply the full frame after the orthographic transition settles. The
+  // native transition otherwise overwrites its target and zoom on entry.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN, {
+      position: framing.position, rotation: framing.rotation, zoom: framing.zoom,
+      transition: sdk.Camera.TransitionType.INSTANT,
+    });
+    await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+  }
+  await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { transition: sdk.Camera.TransitionType.INSTANT });
+  await sdk.Mode.current.waitUntil((mode) => mode === sdk.Mode.Mode.DOLLHOUSE);
+  await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+  await sdk.Camera.setRotation(framing.orbitRotation, { speed: 360 });
+  await waitForStableCamera(sdk);
+  await sdk.Floor.current.waitUntil((floor) => floor.sequence === -1);
+}
+
+
+async function zoomOutToCampus(sdk: MpSdk, container: HTMLElement) {
+  const rect = container.getBoundingClientRect();
+  const framing = getCampusOverviewFraming(rect.width / rect.height);
+  const destination = {
+    position: framing.dollhousePosition,
+    rotation: framing.orbitRotation,
+    transition: sdk.Camera.TransitionType.FLY,
+  };
+  const mode = await sdk.Mode.current.waitUntil((mode) => mode !== null && mode !== sdk.Mode.Mode.TRANSITIONING);
+  if (mode === sdk.Mode.Mode.FLOORPLAN) {
+    // Orthographic floor visibility changes do not lift the viewpoint.
+    await sdk.Floor.showAll();
+    await sdk.Floor.current.waitUntil((floor) => floor.sequence === -1);
+    await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, destination);
+  } else {
+    // Walkthrough retains its active floor on exit. Clear it during the flight,
+    // while the destination owns the camera, rather than recentering on arrival.
+    const flight = sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, destination);
+    await Promise.race([
+      flight,
+      sdk.Mode.transition.waitUntil(({ to }) => to === sdk.Mode.Mode.DOLLHOUSE),
+    ]);
+    await sdk.Floor.showAll();
+    await flight;
+  }
+  await sdk.Mode.current.waitUntil((mode) => mode === sdk.Mode.Mode.DOLLHOUSE);
+  await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+  await waitForStableCamera(sdk);
+  await sdk.Floor.current.waitUntil((floor) => floor.sequence === -1);
+}
+
+
 function toWalkthroughRotation(
   yawPitchRadians: [number, number, number?],
 ): MpSdk.Rotation {
   return toSdkRotation(yawPitchRadians);
 }
+
 
 function subscribeToBuildingStorage(listener: () => void) {
   storageListeners.add(listener);
@@ -180,6 +248,8 @@ export default function Home() {
   const [surveyAuthorized, setSurveyAuthorized] = useState(false);
   const [billboardRevision, setBillboardRevision] = useState(0);
   const [openBillboard, setOpenBillboard] = useState<Billboard | null>(null);
+  const [isMatterportTagOpen, setIsMatterportTagOpen] = useState(false);
+  const [isMatterportTagDocked, setIsMatterportTagDocked] = useState(false);
   const updateAuthorization = useCallback((authorized: boolean) => {
     setSurveyAuthorized(authorized);
     setOpenBillboard(null);
@@ -187,9 +257,8 @@ export default function Home() {
   const refreshBillboards = useCallback(() => setBillboardRevision((n) => n + 1), []);
   const containerRef = useRef<HTMLDivElement>(null);
   const connectionRef = useRef<Promise<MpSdk> | null>(null);
-  const currentPoseRef = useRef<MpSdk.Camera.Pose | null>(null);
-  const overviewPoseRef = useRef<MpSdk.Camera.Pose | null>(null);
   const focusInProgressRef = useRef(false);
+  const viewChangeInProgressRef = useRef(false);
   const returnInProgressRef = useRef(false);
   const viewSpaceInProgressRef = useRef(false);
   const [viewerElement, setViewerElement] = useState<HTMLElement | null>(null);
@@ -199,6 +268,9 @@ export default function Home() {
     null,
   );
   const [isViewingSpace, setIsViewingSpace] = useState(false);
+  const [isChangingView, setIsChangingView] = useState(false);
+  const [isFocusingBuilding, setIsFocusingBuilding] = useState(false);
+  const [focusedBuildingId, setFocusedBuildingId] = useState<string | null>(null);
   const [isReturningToCampus, setIsReturningToCampus] = useState(false);
   const [navigationError, setNavigationError] = useState("");
   const storage = useSyncExternalStore(
@@ -238,6 +310,7 @@ export default function Home() {
           setupSdk(sdkKey, {
             container,
             space: GCU_SPACE_ID,
+            iframeQueryParams: { title: 0 },
             iframeAttributes: {
               title: "GCU Matterport scan",
               allow: "fullscreen; xr-spatial-tracking; web-share; autoplay",
@@ -262,7 +335,9 @@ export default function Home() {
     }, SDK_CONNECTION_TIMEOUT_MS);
 
     connection.then(
-      (matterportSdk) => {
+      async (matterportSdk) => {
+        if (!isCurrentConnection()) return;
+        await restoreCampusOverview(matterportSdk, container);
         clearTimeout(connectionTimeout);
         if (isCurrentConnection()) {
           setSdk(matterportSdk);
@@ -278,18 +353,17 @@ export default function Home() {
           }, remaining);
         }
       },
-      (cause: unknown) => {
-        clearTimeout(connectionTimeout);
-        if (!isCurrentConnection()) {
-          return;
-        }
+    ).catch((cause: unknown) => {
+      clearTimeout(connectionTimeout);
+      if (!isCurrentConnection()) {
+        return;
+      }
 
-        const detail =
-          cause instanceof Error ? ` ${cause.message}` : " Please try again.";
-        setErrorMessage(`The GCU Matterport scan could not be loaded.${detail}`);
-        setStatus("error");
-      },
-    );
+      const detail =
+        cause instanceof Error ? ` ${cause.message}` : " Please try again.";
+      setErrorMessage(`The GCU Matterport scan could not be loaded.${detail}`);
+      setStatus("error");
+    });
 
     return () => {
       disposed = true;
@@ -315,113 +389,117 @@ export default function Home() {
     if (!sdk) {
       return;
     }
-
-    const subscription = sdk.Camera.pose.subscribe((pose) => {
-      currentPoseRef.current = pose;
-    });
-    let previousMode: MpSdk.Mode.Mode | null = null;
-    const modeSubscription = sdk.Mode.current.subscribe((mode) => {
-      const returnedToOverview = previousMode === sdk.Mode.Mode.INSIDE &&
-        (mode === sdk.Mode.Mode.DOLLHOUSE || mode === sdk.Mode.Mode.FLOORPLAN);
-      if (returnedToOverview && !returnInProgressRef.current && !focusInProgressRef.current) {
-        setSelectedBuilding(null);
-      }
-      if (mode !== null) previousMode = mode;
-      setCurrentMode(mode);
-    });
+    const modeSubscription = sdk.Mode.current.subscribe(setCurrentMode);
 
     return () => {
-      subscription.cancel();
       modeSubscription.cancel();
     };
   }, [sdk]);
 
-  const focusBuilding = (building: Building) => {
-    if (!sdk || focusInProgressRef.current) {
+  useEffect(() => {
+    if (!sdk) return;
+    // Native tag cards live inside the iframe, so a parent z-index cannot put
+    // individual annotations behind them. Suppress those annotations while
+    // a tag preview, selected card, or expanded dock is open.
+    let closeTimer: ReturnType<typeof setTimeout> | undefined;
+    const subscription = sdk.Tag.openTags.subscribe(({ hovered, selected, docked }) => {
+      clearTimeout(closeTimer);
+      if (hovered || docked || selected.size > 0) {
+        setIsMatterportTagOpen(true);
+        if (docked) setIsMatterportTagDocked(true);
+      } else {
+        // Keep annotations behind the card until its exit animation finishes.
+        closeTimer = setTimeout(() => {
+          setIsMatterportTagOpen(false);
+          setIsMatterportTagDocked(false);
+        }, 250);
+      }
+    });
+    return () => { clearTimeout(closeTimer); subscription.cancel(); };
+  }, [sdk]);
+
+  const focusBuilding = async (building: Building) => {
+    if (!sdk || focusInProgressRef.current || viewChangeInProgressRef.current) {
       return;
     }
 
-    setSelectedBuilding(building);
+    setFocusedBuildingId(null);
+    setOpenBillboard(null);
     setNavigationError("");
 
-    const currentPose = currentPoseRef.current;
-    if (
-      overviewPoseRef.current === null &&
-      currentPose?.mode === sdk.Mode.Mode.DOLLHOUSE
-    ) {
-      overviewPoseRef.current = currentPose;
-    }
-
     focusInProgressRef.current = true;
-    void (async () => {
-      try {
-        await sdk.Mode.transition.waitUntil(
-          ({ from, to }) => from === null && to === null,
-        );
-        const floors = building.floors ?? [];
-        const currentFloor = await sdk.Floor.current.waitUntil(
-          (floor) => floor.sequence !== undefined,
-        );
-        const assignedFloor =
-          floors.length === 1
-            ? floors[0]
-            : floors.find(
-                (floor) =>
-                  floor.matterportSequence === currentFloor.sequence,
-              );
-        if (
-          assignedFloor &&
-          assignedFloor.matterportSequence !== currentFloor.sequence
-        ) {
-          await moveToFloorAndWait(sdk, assignedFloor.matterportSequence);
-          await sdk.Floor.current.waitUntil(
-            (floor) =>
-              floor.sequence === assignedFloor.matterportSequence,
-          );
-          await waitForStableCamera(sdk);
-        }
-
-        await sdk.Mode.transition.waitUntil(
-          ({ from, to }) => from === null && to === null,
-        );
-        const mode = await sdk.Mode.current.waitUntil(
-          (mode) => mode !== null && mode !== sdk.Mode.Mode.TRANSITIONING,
-        );
-        if (mode === sdk.Mode.Mode.FLOORPLAN) {
-          await sdk.Camera.lookAt(building.position, {
-            mode: sdk.Mode.Mode.FLOORPLAN,
-            offset: { x: 0, y: 18, z: 0 },
-          });
-        } else {
-          await sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN, {
-            position: building.position,
-            rotation: { x: -90, y: 0 },
-            zoom: 18,
-            transition: sdk.Camera.TransitionType.FLY,
-          });
-        }
-        await sdk.Mode.current.waitUntil(
-          (mode) => mode === sdk.Mode.Mode.FLOORPLAN,
-        );
-
-        if (floors.length > 1 && !assignedFloor) {
-          setNavigationError(
-            "This space has multiple assigned floors. Use the Matterport floor selector to choose a floor.",
-          );
-        }
-      } catch (cause: unknown) {
-        console.error(`Could not focus on "${building.name}".`, cause);
-        setNavigationError(
-          `Matterport could not open the floor plan for ${building.name}. The selection is still active.`,
-        );
-      } finally {
-        focusInProgressRef.current = false;
+    setIsFocusingBuilding(true);
+    try {
+      await sdk.Mode.transition.waitUntil(
+        ({ from, to }) => from === null && to === null,
+      );
+      const floors = building.floors ?? [];
+      const currentFloor = await sdk.Floor.current.waitUntil(
+        (floor) => floor.sequence !== undefined,
+      );
+      const assignedFloor =
+        floors.length === 1
+          ? floors[0]
+          : floors.find(
+              (floor) =>
+                floor.matterportSequence === currentFloor.sequence,
+            );
+      await sdk.Mode.transition.waitUntil(
+        ({ from, to }) => from === null && to === null,
+      );
+      const sourceMode = await sdk.Mode.current.waitUntil(
+        (mode) => mode !== null && mode !== sdk.Mode.Mode.TRANSITIONING,
+      );
+      // Mount the dock and start the flight in the same task, rather than
+      // painting a resized viewer and pausing before the camera starts.
+      flushSync(() => setSelectedBuilding(building));
+      const frame = containerRef.current?.getBoundingClientRect();
+      const aspect = frame && frame.height > 0 ? frame.width / frame.height : 2.33;
+      const framing = getFloorPlanFraming(building, aspect);
+      await sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN, {
+        position: framing.position,
+        rotation: framing.rotation,
+        zoom: framing.zoom,
+        transition: sdk.Camera.TransitionType.FLY,
+      });
+      await sdk.Mode.current.waitUntil((mode) => mode === sdk.Mode.Mode.FLOORPLAN);
+      await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+      if (sourceMode !== sdk.Mode.Mode.FLOORPLAN && framing.refine) {
+        await sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN, {
+          position: framing.position,
+          rotation: framing.rotation,
+          zoom: framing.zoom,
+          transition: sdk.Camera.TransitionType.FLY,
+        });
+        await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
       }
-    })();
+      // Isolate the assigned floor only in orthographic mode: changing floors
+      // in Dollhouse adjusts the camera's height before the zoom even begins.
+      if (assignedFloor && assignedFloor.matterportSequence !== currentFloor.sequence) {
+        await moveToFloorAndWait(sdk, assignedFloor.matterportSequence);
+        await sdk.Floor.current.waitUntil((floor) => floor.sequence === assignedFloor.matterportSequence);
+      }
+      await waitForStableCamera(sdk);
+      setFocusedBuildingId(building.id);
+
+      if (floors.length > 1 && !assignedFloor) {
+        setNavigationError(
+          "This space has multiple assigned floors. Use the Matterport floor selector to choose a floor.",
+        );
+      }
+    } catch (cause: unknown) {
+      console.error(`Could not focus on "${building.name}".`, cause);
+      setNavigationError(
+        `Matterport could not open the floor plan for ${building.name}. The selection is still active.`,
+      );
+    } finally {
+      focusInProgressRef.current = false;
+      setIsFocusingBuilding(false);
+    }
   };
 
   const viewSelectedSpace = async () => {
-    if (!sdk || !selectedBuilding || viewSpaceInProgressRef.current) {
+    if (!sdk || !selectedBuilding || viewSpaceInProgressRef.current || viewChangeInProgressRef.current) {
       return;
     }
 
@@ -501,6 +579,7 @@ export default function Home() {
     if (
       !sdk ||
       returnInProgressRef.current ||
+      viewChangeInProgressRef.current ||
       viewSpaceInProgressRef.current
     ) {
       return;
@@ -509,6 +588,7 @@ export default function Home() {
     const buildingToRestore = selectedBuilding;
     returnInProgressRef.current = true;
     setIsReturningToCampus(true);
+    setOpenBillboard(null);
     setNavigationError("");
     try {
       const focusDeadline = Date.now() + 15_000;
@@ -521,88 +601,18 @@ export default function Home() {
       await sdk.Mode.transition.waitUntil(
         ({ from, to }) => from === null && to === null,
       );
-      const currentMode = await sdk.Mode.current.waitUntil(
-        (mode) => mode !== null,
-      );
-      const overviewPose = overviewPoseRef.current;
-      if (currentMode !== sdk.Mode.Mode.DOLLHOUSE) {
-        await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, {
-          transition: sdk.Camera.TransitionType.FLY,
-        });
-      }
-      await sdk.Mode.transition.waitUntil(
-        ({ from, to }) => from === null && to === null,
-      );
-
-      let floorRestoreError = false;
-      try {
-        const currentFloor = await sdk.Floor.current.waitUntil(
-          (floor) => floor.sequence !== undefined,
-        );
-        if (currentFloor.sequence !== -1) {
-          await sdk.Floor.showAll();
-          await sdk.Floor.current.waitUntil(
-            (floor) => floor.sequence === -1,
-          );
-          await waitForStableCamera(sdk);
-        }
-      } catch (cause) {
-        floorRestoreError = true;
-        console.error("Matterport could not restore all floors.", cause);
-      }
-
-      await sdk.Mode.transition.waitUntil(
-        ({ from, to }) => from === null && to === null,
-      );
-      // Fit the whole scan rather than reusing a possibly zoomed-in camera.
-      const sweeps = await sdk.Sweep.data.waitUntil(
-        (collection) => Object.keys(collection).length > 0,
-      );
-      const positions = [
-        ...Object.values(sweeps).map((sweep) => sweep.position),
-        ...storage.buildings.map((building) => building.position),
-      ].filter((position) => [position.x, position.y, position.z].every(Number.isFinite));
-      if (positions.length === 0) {
-        throw new Error("Campus bounds are not available yet.");
-      }
-      const center = {
-        x: (Math.min(...positions.map((p) => p.x)) + Math.max(...positions.map((p) => p.x))) / 2,
-        y: (Math.min(...positions.map((p) => p.y)) + Math.max(...positions.map((p) => p.y))) / 2,
-        z: (Math.min(...positions.map((p) => p.z)) + Math.max(...positions.map((p) => p.z))) / 2,
-      };
-      const radius = Math.max(10, ...positions.map((p) =>
-        Math.hypot(p.x - center.x, p.y - center.y, p.z - center.z),
-      ));
-      const frame = containerRef.current?.getBoundingClientRect();
-      const aspect = frame && frame.height > 0 ? frame.width / frame.height : 1;
-      const projection = currentPoseRef.current?.projection;
-      const focalLength = Math.abs(projection?.[5] ?? 0);
-      const verticalHalfFov = focalLength > 0 ? Math.atan(1 / focalLength) : Math.PI / 8;
-      const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * aspect);
-      const distance = radius * 1.3 / Math.sin(Math.min(verticalHalfFov, horizontalHalfFov));
-      const heading = overviewPose
-        ? Math.atan2(overviewPose.position.x - center.x, overviewPose.position.z - center.z)
-        : Math.PI / 4;
-      const elevation = Math.PI / 3;
-      await sdk.Camera.lookAt(center, {
-        mode: sdk.Mode.Mode.DOLLHOUSE,
-        offset: {
-          x: Math.sin(heading) * distance * Math.cos(elevation),
-          y: distance * Math.sin(elevation),
-          z: Math.cos(heading) * distance * Math.cos(elevation),
-        },
-        transition: sdk.Camera.TransitionType.FLY,
-        transitionTime: 1800,
-      });
-      await sdk.Mode.current.waitUntil((mode) => mode === sdk.Mode.Mode.DOLLHOUSE);
-      await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+      const nativeTags = await sdk.Tag.openTags.waitUntil(() => true);
+      const tagsToClose = new Set([
+        ...nativeTags.selected,
+        ...(nativeTags.hovered ? [nativeTags.hovered] : []),
+        ...(nativeTags.docked ? [nativeTags.docked] : []),
+      ]);
+      await Promise.all([...tagsToClose].map((id) => sdk.Tag.close(id)));
+      flushSync(() => setSelectedBuilding(null));
       await waitForStableCamera(sdk);
-      if (floorRestoreError) {
-        setNavigationError(
-          "Campus view restored, but Matterport could not show all floors. The current floor remains visible.",
-        );
-      }
-      setSelectedBuilding(null);
+      if (!containerRef.current) throw new Error("Campus viewer is not available.");
+      await zoomOutToCampus(sdk, containerRef.current);
+      setFocusedBuildingId(null);
     } catch (cause) {
       console.error("Could not return to the campus overview.", cause);
       setSelectedBuilding(buildingToRestore);
@@ -612,6 +622,43 @@ export default function Home() {
     } finally {
       returnInProgressRef.current = false;
       setIsReturningToCampus(false);
+    }
+  };
+
+  const changeView = async (view: CampusView) => {
+    if (!sdk || focusInProgressRef.current || returnInProgressRef.current ||
+        viewSpaceInProgressRef.current || viewChangeInProgressRef.current) return;
+    const target = view === "dollhouse" ? sdk.Mode.Mode.DOLLHOUSE
+      : view === "floorplan" ? sdk.Mode.Mode.FLOORPLAN : sdk.Mode.Mode.INSIDE;
+    if (currentMode === target || (view === "walkthrough" && currentMode === sdk.Mode.Mode.PANO360)) return;
+    if (selectedBuilding && view === "floorplan") {
+      await focusBuilding(selectedBuilding);
+      return;
+    }
+    if (selectedBuilding && view === "walkthrough") {
+      await viewSelectedSpace();
+      return;
+    }
+    viewChangeInProgressRef.current = true;
+    setIsChangingView(true);
+    setNavigationError("");
+    setOpenBillboard(null);
+    try {
+      await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+      if (view === "dollhouse" && !selectedBuilding && containerRef.current) {
+        await zoomOutToCampus(sdk, containerRef.current);
+      } else {
+        await sdk.Mode.moveTo(target, { transition: sdk.Camera.TransitionType.FLY });
+        await sdk.Mode.current.waitUntil((mode) => mode === target);
+        await sdk.Mode.transition.waitUntil(({ from, to }) => from === null && to === null);
+        await waitForStableCamera(sdk);
+      }
+    } catch (cause) {
+      console.error(`Could not open the ${view} view.`, cause);
+      setNavigationError("The view could not be changed. Please try again.");
+    } finally {
+      viewChangeInProgressRef.current = false;
+      setIsChangingView(false);
     }
   };
 
@@ -657,31 +704,52 @@ export default function Home() {
   return (
     <main
       className={`${styles.viewer} ${selectedBuilding ? styles.withSelectedSpace : ""}`}
+      data-survey-authorized={surveyMode && surveyAuthorized ? "true" : undefined}
       aria-label="GCU Matterport tour"
       ref={setViewerElement}
     >
       <div className={styles.container} ref={containerRef} />
+      <header className={styles.campusBranding} aria-label="Garden City University 3D Campus Experience">
+        <Image src="/branding/gcu-mark.svg" width={46} height={46}
+          alt="Garden City University logo" className={styles.headerLogo} />
+        <div className={styles.brandingText}>
+          <p className={styles.brandingTitle}>Garden City University</p>
+          <p className={styles.brandingSubtitle}>3D Campus Experience</p>
+        </div>
+      </header>
+      <WalkthroughPointer sdk={sdk} mode={currentMode} viewer={viewerElement} suppressed={isMatterportTagOpen} />
       <BillboardExperience sdk={sdk} viewer={viewerElement} admin={surveyMode && surveyAuthorized}
-        revision={billboardRevision} onOpen={setOpenBillboard} />
+        revision={billboardRevision} onOpen={setOpenBillboard}
+        selectedBuildingName={
+          selectedBuilding && focusedBuildingId === selectedBuilding.id &&
+          !isViewingSpace && !isReturningToCampus && !isMatterportTagOpen
+            ? selectedBuilding.name : null
+        } />
       {openBillboard && <BillboardCard billboard={openBillboard} onClose={() => setOpenBillboard(null)} />}
       {surveyMode && <SurveyWorkspace sdk={sdk} buildings={storage.buildings}
         storageReady={storage.ready} storageError={storage.error} onSaveBuildings={saveBuildings}
         onAuthorization={updateAuthorization} onBillboardsChanged={refreshBillboards} onPreview={setOpenBillboard} />}
       {sdk && viewerElement && (
         <>
+          <ViewModeControls viewer={viewerElement} hideCredit={isMatterportTagDocked}
+            activeView={currentMode === sdk.Mode.Mode.DOLLHOUSE ? "dollhouse"
+              : currentMode === sdk.Mode.Mode.FLOORPLAN ? "floorplan"
+              : currentMode === sdk.Mode.Mode.INSIDE || currentMode === sdk.Mode.Mode.PANO360 ? "walkthrough" : null}
+            busy={isFocusingBuilding || isViewingSpace || isReturningToCampus || isChangingView || currentMode === sdk.Mode.Mode.TRANSITIONING}
+            onChange={(view) => void changeView(view)} />
           <BuildingLabels
             sdk={sdk}
             viewer={viewerElement}
             buildings={storage.buildings}
             selectedBuildingId={selectedBuilding?.id ?? null}
             visible={
-              !isViewingSpace && !isReturningToCampus &&
+              !isViewingSpace && !isReturningToCampus && !isMatterportTagOpen &&
               (currentMode === sdk.Mode.Mode.INSIDE
                 ? selectedBuilding !== null
                 : surveyMode || currentMode === sdk.Mode.Mode.DOLLHOUSE ||
                   currentMode === sdk.Mode.Mode.FLOORPLAN)
             }
-            onSelect={focusBuilding}
+            onSelect={(building) => void focusBuilding(building)}
           />
           {storage.error && (
             <p className={styles.dataError} role="alert">
@@ -692,8 +760,16 @@ export default function Home() {
             <BuildingNavigationPanel
               building={selectedBuilding}
               error={navigationError}
-              isViewingSpace={isViewingSpace || isReturningToCampus}
-              onViewSpace={() => void viewSelectedSpace()}
+              isBusy={isViewingSpace || isReturningToCampus || isFocusingBuilding || isChangingView}
+              busyLabel={isFocusingBuilding ? "Opening floor plan…" : isReturningToCampus ? "Returning to campus…" : isChangingView ? "Changing view…" : "Opening space…"}
+              isWalkthrough={currentMode === sdk.Mode.Mode.INSIDE || currentMode === sdk.Mode.Mode.PANO360}
+              onViewSpace={() => {
+                if (currentMode === sdk.Mode.Mode.INSIDE || currentMode === sdk.Mode.Mode.PANO360) {
+                  void focusBuilding(selectedBuilding);
+                } else {
+                  void viewSelectedSpace();
+                }
+              }}
               onReturnToCampus={() => void returnToCampus()}
             />
           )}

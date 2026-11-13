@@ -1,0 +1,15 @@
+.layer {
+  position: absolute;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ring {
+  fill: none;
+  stroke: rgb(255 255 255 / 78%);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 18%));
+}

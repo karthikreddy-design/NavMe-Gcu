@@ -6,7 +6,9 @@ import styles from "./BuildingNavigationPanel.module.css";
 type Props = {
   building: Building;
   error: string;
-  isViewingSpace: boolean;
+  isBusy: boolean;
+  busyLabel: string;
+  isWalkthrough: boolean;
   onViewSpace: () => void;
   onReturnToCampus: () => void;
 };
@@ -14,7 +16,9 @@ type Props = {
 export default function BuildingNavigationPanel({
   building,
   error,
-  isViewingSpace,
+  isBusy,
+  busyLabel,
+  isWalkthrough,
   onViewSpace,
   onReturnToCampus,
 }: Props) {
@@ -28,7 +32,7 @@ export default function BuildingNavigationPanel({
         <button
           className={styles.close}
           type="button"
-          disabled={isViewingSpace}
+          disabled={isBusy}
           aria-label="Return to campus overview"
           onClick={onReturnToCampus}
         >
@@ -55,15 +59,15 @@ export default function BuildingNavigationPanel({
       <button
         className={styles.viewSpace}
         type="button"
-        disabled={isViewingSpace}
+        disabled={isBusy}
         onClick={onViewSpace}
       >
-        {isViewingSpace ? "Opening space…" : "View space"}
+        {isBusy ? busyLabel : isWalkthrough ? "Return to floor plan" : "View space"}
       </button>
       <button
         className={styles.return}
         type="button"
-        disabled={isViewingSpace}
+        disabled={isBusy}
         onClick={onReturnToCampus}
       >
         Return to full campus

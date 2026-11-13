@@ -3,8 +3,8 @@
   color: #eef8fc;
 }
 .adminPanel {
-  position: absolute; top: 74px; left: 16px; z-index: 12;
-  width: min(400px, calc(100% - 32px)); max-height: calc(100dvh - 92px);
+  position: absolute; top: var(--survey-panel-top, 74px); left: 16px; z-index: 12;
+  width: min(400px, calc(100% - 32px)); max-height: calc(100dvh - var(--survey-panel-bottom-offset, 92px));
   overflow: auto; padding: 22px; border: 1px solid #294451; border-radius: 16px;
   background: #0b1924; box-shadow: 0 16px 50px #0005; font-size: 13px;
   scrollbar-width: thin; scrollbar-color: #355260 transparent;
@@ -15,7 +15,7 @@
 .editorHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .editorHeader h1 { margin-bottom: 0; }
 .adminToolbar {
-  position: absolute; left: 16px; top: 16px; z-index: 12; display: flex;
+  position: absolute; left: 16px; top: var(--survey-toolbar-top, 16px); z-index: 12; display: flex;
   padding: 5px; gap: 4px; border: 1px solid #294451; border-radius: 12px; background: #0b1924;
 }
 .adminToolbar button { border: 0; background: transparent; color: #b9d0db; border-radius: 7px; padding: 10px 12px; font: 600 12px Arial, sans-serif; cursor: pointer; }
@@ -63,10 +63,12 @@
 .visitorLink { display: inline-block; margin-top: 20px; color: #8fe2ee; font-size: 12px; }
 .workspaceError, .billboardNotice { position: absolute; bottom: 12px; left: 16px; z-index: 12; max-width: 360px; background: #192f3a; color: #fff; border-radius: 8px; padding: 12px; font: 12px/1.5 Arial, sans-serif; }
 .billboardLayer { position: absolute; z-index: 5; overflow: hidden; pointer-events: none; }
-.billboardAnchor { position: absolute; width: 0; height: 0; }
+.billboardAnchor { position: absolute; z-index: 1; pointer-events: none; }
+.billboardLeaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; stroke: #78d7ed; stroke-width: 1; fill: #e8faff; }
+.walkthroughStems { stroke: rgb(255 255 255 / 90%); stroke-width: 1.2; fill: rgb(255 255 255 / 16%); }
 .billboard {
-  position: absolute; bottom: 12px; left: 0; transform: translateX(-50%);
-  display: grid; gap: 7px; width: 184px; padding: 7px 7px 9px;
+  position: absolute; top: 0; left: 0; transform-origin: top left;
+  display: grid; gap: 7px; width: 184px; height: 111px; padding: 7px 7px 9px;
   border: 2px solid #00c4ed; border-radius: 16px;
   background: #eef9ff; color: #052640;
   box-shadow: 0 0 0 1px #c5f5ff80, 0 4px 14px #003e6350, 0 0 12px #00c4ed40;
@@ -79,7 +81,7 @@
   border-bottom-right-radius: 4px; background: #eef9ff;
 }
 .billboardHeading {
-  display: flex; align-items: center; gap: 9px; min-height: 43px;
+  display: flex; align-items: center; gap: 9px; height: 52px;
   padding: 8px 10px; border-radius: 10px; background: #00a9ef; color: #fff;
 }
 .billboardIcon { flex: 0 0 25px; width: 25px; height: 25px; }
@@ -99,31 +101,29 @@
 .billboardView svg { position: absolute; right: 11px; width: 13px; height: 13px; }
 .billboardView:hover { background: #d3efff; border-color: #00a9ef; }
 .billboardView:focus-visible { outline: 3px solid #003c64; outline-offset: 2px; }
-.billboardStatus { position: absolute; right: 4px; top: -19px; padding: 2px 5px; border-radius: 4px; background: #092d40; color: #dcf6ff; font-size: 9px; }
-.overviewBillboards .billboard { width: 112px; gap: 5px; padding: 4px 4px 6px; border-radius: 10px; box-shadow: 0 2px 8px #003e6340; }
-.overviewBillboards .billboardHeading { min-height: 26px; padding: 5px; gap: 5px; border-radius: 6px; }
-.overviewBillboards .billboardIcon { flex-basis: 15px; width: 15px; height: 15px; }
-.overviewBillboards .billboardTitle { padding-left: 5px; font-size: 10px; }
-.overviewBillboards .billboardView { min-height: 24px; width: 100%; margin: 0; padding: 4px 19px; font-size: 11px; }
-.overviewBillboards .billboardView svg { width: 9px; height: 9px; right: 8px; }
-.dialog { width: min(900px, calc(100vw - 32px)); max-height: min(88dvh, 900px); padding: 0; border: 1px solid #d3e0e7; border-radius: 20px; background: #fff; color: #142c3b; box-shadow: 0 30px 100px #0007; }
+.compactBillboards .billboard { width: 112px; height: 79px; gap: 5px; padding: 4px 4px 6px; border-radius: 10px; box-shadow: 0 2px 8px #003e6340; }
+.compactBillboards .billboardHeading { height: 36px; padding: 5px; gap: 5px; border-radius: 6px; }
+.compactBillboards .billboardIcon { flex-basis: 15px; width: 15px; height: 15px; }
+.compactBillboards .billboardTitle { padding-left: 5px; font-size: 10px; }
+.compactBillboards .billboardView { min-height: 24px; width: 100%; margin: 0; padding: 4px 19px; font-size: 11px; }
+.compactBillboards .billboardView svg { width: 9px; height: 9px; right: 8px; }
+.dialog { width: min(620px, calc(100vw - 24px)); max-height: min(80dvh, 680px); overflow-y: auto; scrollbar-width: thin; padding: 0; border: 1px solid #d3e0e7; border-radius: 16px; background: #fff; color: #142c3b; box-shadow: 0 30px 100px #0007; }
 .dialog::backdrop { background: #03101a99; backdrop-filter: blur(5px); }
-.contentCard { padding: clamp(22px, 4vw, 38px); }
-.cardHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.contentCard { padding: clamp(18px, 3vw, 26px); }
+.cardHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
 .cardHeader .eyebrow { color: #23768a; }
-.cardHeader h2 { margin: 10px 0 0; font-size: clamp(23px, 4vw, 34px); letter-spacing: -0.04em; line-height: 1.2; overflow-wrap: anywhere; }
-.close { flex: 0 0 36px; height: 36px; border: 1px solid #ccdce3; border-radius: 50%; background: #f3f7f9; color: #274b5f; font-size: 24px; }
-.description { color: #536d7d; line-height: 1.75; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 20px 0 24px; }
-.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 18px; margin-top: 24px; }
+.cardHeader h2 { margin: 7px 0 0; font-size: clamp(19px, 2.5vw, 24px); letter-spacing: -0.025em; line-height: 1.3; overflow-wrap: anywhere; }
+.close { flex: 0 0 32px; height: 32px; border: 1px solid #ccdce3; border-radius: 50%; background: #f3f7f9; color: #274b5f; font-size: 24px; }
+.description { color: #536d7d; line-height: 1.65; font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 16px 0; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; margin-top: 16px; }
 .gallery figure { min-width: 0; margin: 0; }
-.galleryImage, .video { display: block; width: 100%; height: auto; max-height: 420px; aspect-ratio: 3 / 2; object-fit: contain; background: #edf2f5; border-radius: 10px; }
+.galleryImage, .video { display: block; width: 100%; height: auto; max-height: 260px; aspect-ratio: 3 / 2; object-fit: contain; background: #edf2f5; border-radius: 10px; }
 .video { background: #07121b; }
-.gallery figcaption { margin-top: 9px; color: #637e8d; font-size: 11px; overflow-wrap: anywhere; }
-.cardFooter { margin-top: 28px; padding-top: 20px; border-top: 1px solid #e1e9ed; }
+.cardFooter { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e1e9ed; }
 .cardFooter .secondary { background: #eef5f7; border-color: #c6dce4; color: #24556a; }
 @media (max-width: 600px) {
-  .adminPanel { top: 70px; left: 8px; width: min(360px, calc(100% - 16px)); max-height: min(68dvh, calc(100dvh - 88px)); padding: 18px; }
-  .adminToolbar { left: 8px; top: 12px; }
+  .adminPanel { top: var(--survey-panel-top, 70px); left: 8px; width: min(360px, calc(100% - 16px)); max-height: min(68dvh, calc(100dvh - var(--survey-panel-bottom-offset, 88px))); padding: 18px; }
+  .adminToolbar { left: 8px; top: var(--survey-toolbar-top, 12px); }
   .adminToolbar button { padding: 9px 10px; font-size: 11px; }
   .dialog { border-radius: 14px; }
 }

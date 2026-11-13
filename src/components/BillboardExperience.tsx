@@ -4,9 +4,10 @@ import type { MpSdk } from "@matterport/sdk";
 import { isBillboard, type Billboard } from "@/data/billboards";
 import BillboardLayer from "./BillboardLayer";
 import styles from "./Billboards.module.css";
+import { getBuildingBillboards } from "@/data/billboardGroups";
 
-export default function BillboardExperience({ sdk, viewer, admin, revision, onOpen }: {
-  sdk: MpSdk | null; viewer: HTMLElement | null; admin: boolean; revision: number; onOpen: (billboard: Billboard) => void;
+export default function BillboardExperience({ sdk, viewer, admin, revision, onOpen, selectedBuildingName }: {
+  sdk: MpSdk | null; viewer: HTMLElement | null; admin: boolean; revision: number; onOpen: (billboard: Billboard) => void; selectedBuildingName: string | null;
 }) {
   const [items, setItems] = useState<Billboard[]>([]);
   const [error, setError] = useState("");
@@ -26,7 +27,7 @@ export default function BillboardExperience({ sdk, viewer, admin, revision, onOp
     return () => { active = false; window.removeEventListener("focus", load); };
   }, [admin, revision]);
   return <>
-    {sdk && viewer && <BillboardLayer sdk={sdk} viewer={viewer} billboards={items} admin={admin} onOpen={onOpen} />}
+    {sdk && viewer && selectedBuildingName && <BillboardLayer sdk={sdk} viewer={viewer} billboards={getBuildingBillboards(items, selectedBuildingName)} buildingName={selectedBuildingName} admin={admin} onOpen={onOpen} />}
     {error && <p role="status" className={styles.billboardNotice}>{error}</p>}
   </>;
 }

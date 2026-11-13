@@ -20,11 +20,10 @@ export default function BillboardCard({ billboard, onClose }: { billboard: Billb
       </header>
       {billboard.description && <p className={styles.description}>{billboard.description}</p>}
       {billboard.media.length > 0 && <div className={styles.gallery}>
-        {billboard.media.map((media) => <figure key={media.id}>
+        {billboard.media.map((media, index) => <figure key={media.id}>
           {media.type === "image"
-            ? <Image src={media.url} alt={media.name} width={960} height={640} unoptimized className={styles.galleryImage} />
-            : <video src={media.url} controls playsInline preload="metadata" className={styles.video} aria-label={media.name} />}
-          <figcaption>{media.name}</figcaption>
+            ? <Image src={media.url} alt={`${billboard.title} — photo ${index + 1}`} width={960} height={640} unoptimized className={styles.galleryImage} />
+            : <video src={media.url} controls playsInline preload="metadata" className={styles.video} aria-label={`${billboard.title} — video ${index + 1}`} />}
         </figure>)}
       </div>}
       <footer className={styles.cardFooter}><button className={styles.secondary} onClick={onClose}>Close and continue exploring</button></footer>

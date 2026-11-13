@@ -1,0 +1,131 @@
+.controls,
+.credit {
+  position: absolute;
+  z-index: 7;
+  height: 40px;
+  border: 1px solid #315363;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #0c2432, #07151e);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 24%);
+  color: #eaf8fd;
+  font-family: Arial, Helvetica, sans-serif;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  padding: 3px;
+}
+
+.controls::before,
+.controls::after {
+  content: "";
+  position: absolute;
+  top: 11px;
+  bottom: 11px;
+  width: 1px;
+  background: rgb(138 209 230 / 15%);
+  pointer-events: none;
+}
+.controls::before { left: 33.333%; }
+.controls::after { left: 66.667%; }
+
+.button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: #b5cfdb;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.button[aria-pressed="true"] {
+  border-color: #54bbd0;
+  background: #0b5b70;
+  color: #fff;
+  box-shadow: 0 0 10px rgb(47 190 216 / 12%);
+}
+.button[data-hovered="true"]:not(:disabled):not([aria-pressed="true"]) { background: #173b4c; color: #fff; }
+.button:focus-visible { outline: 2px solid #81ecff; outline-offset: 1px; }
+.button:disabled { cursor: wait; opacity: 0.65; }
+
+.credit {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1px;
+  width: 80px;
+  padding: 2px;
+}
+.creditCaption { color: #9db8c6; font-size: 8px; font-weight: 600; line-height: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.creditName { color: #f3fbff; font-size: 17px; font-weight: 750; line-height: 18px; letter-spacing: -0.035em; }
+.creditName span { color: #73deed; }
+
+/* At 338px the measured covers meet; join them without increasing their height. */
+@media (max-width: 338px) {
+  .controls { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+  .credit { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none; }
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  width: max-content;
+  padding: 8px 11px;
+  border-radius: 5px;
+  background: #202124;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 24%);
+  color: #fff;
+  font: 600 13px/18px Arial, Helvetica, sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #202124;
+}
+
+/* Keep the first label inside the viewport while its arrow points at the icon. */
+.button:first-child .tooltip { left: -24px; transform: none; }
+.button:first-child .tooltip::after { left: 40px; }
+.tooltip[data-visible="true"] { opacity: 1; visibility: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip { transition: none; }
+}
+
+/* Dismiss hover before entering the cross-origin viewer. This transparent
+   layer removes itself on the first pointer event, before any floor click. */
+.hoverDismiss {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: transparent;
+  pointer-events: auto;
+}

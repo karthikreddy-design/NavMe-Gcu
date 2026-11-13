@@ -49,6 +49,14 @@ in walkthrough mode when its anchor is on screen. **Return to full campus** rest
 Dollhouse overview and campus labels. These destinations are maintained in
 `src/data/walkthroughDestinations.ts`.
 
+In walkthrough mode, **View space** changes to **Return to floor plan**.
+That action restores the same selected space and its assigned floor, while
+**Return to full campus** restores the all-floors Dollhouse overview.
+Library uses a centered horizontal reading-room frame matching the reference;
+Front Office, Indoor Auditorium and Mac Lab also have reference-specific
+centers, orientations and zoom levels. These responsive frames are configured
+in `src/data/floorPlanFraming.ts` and reused when returning from walkthrough.
+
 ## Billboards
 
 Open `http://localhost:443/?survey=1`, sign in, and select **Billboards**.
@@ -67,6 +75,22 @@ enabled records and displays read-only content cards with photo galleries
 and playable videos. Visitors can close a card with its close button,
 the Escape key, or by clicking outside it. Returning to a browser tab
 refreshes its billboards; reload also fetches the latest saved content.
+
+Billboards are hidden in the full-campus view. Select a building label to
+open its floor plan; after the camera settles, only that building's assigned
+billboards appear. The same group remains available in every viewing mode,
+including walkthrough, Dollhouse and floor plan, until the selection is closed.
+Returning to full campus hides billboards again. The eight building menus
+are maintained in `src/data/billboardGroups.ts`, including aliases for the
+existing “Libruary” and “Indore Auditorium” labels. Survey mode uses the same
+map filtering; the management list and content-card preview remain available.
+Overview cards scale with zoom and use collision-free screen placement, with
+connecting lines to their saved anchors. Walkthrough signs use a fixed small
+size and a moderate fixed height above their anchors, with a white vertical
+stem ending in a small floor ring. There is no spreading layout in walkthrough
+mode. Nearer signs occlude overlapping distant signs until the camera separates
+them. Return to full campus uses the native viewer transition and restores
+all floors without a custom fade overlay.
 
 Photos: JPEG, PNG, WebP and GIF. Videos: MP4 and WebM. Each billboard supports
 up to 20 files, 50 MB per file. Media is streamed with byte-range support.
