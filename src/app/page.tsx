@@ -278,12 +278,34 @@ export default function Home() {
     getBuildingStorageSnapshot,
     () => EMPTY_STORAGE_SNAPSHOT,
   );
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+  const [status, setStatus] = useState<"loading" | "intro" | "intro-exiting" | "ready" | "error">(
     "loading",
   );
   const [errorMessage, setErrorMessage] = useState("");
   const [connectionAttempt, setConnectionAttempt] = useState(0);
   const [isLoadingExiting, setIsLoadingExiting] = useState(false);
+  const introVideoRef = useRef<HTMLVideoElement>(null);
+  const [introNeedsPlay, setIntroNeedsPlay] = useState(false);
+
+  const finishIntro = useCallback(() => {
+    setStatus(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "ready" : "intro-exiting");
+  }, []);
+
+  const playIntro = useCallback(() => {
+    const video = introVideoRef.current;
+    if (!video) return;
+    if (video.error) {
+      finishIntro();
+      return;
+    }
+    void video.play().catch(() => {
+      if (introVideoRef.current === video && !video.error) setIntroNeedsPlay(true);
+    });
+  }, [finishIntro]);
+
+  useEffect(() => {
+    if (status === "intro") playIntro();
+  }, [status, playIntro]);
 
   useEffect(() => {
     let disposed = false;
@@ -348,7 +370,7 @@ export default function Home() {
             const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches
               ? 0 : LOADING_EXIT_MS;
             exitTimer = setTimeout(() => {
-              if (isCurrentConnection()) setStatus("ready");
+              if (isCurrentConnection()) setStatus("intro");
             }, duration);
           }, remaining);
         }
@@ -382,6 +404,7 @@ export default function Home() {
     setErrorMessage("");
     setStatus("loading");
     setIsLoadingExiting(false);
+    setIntroNeedsPlay(false);
     setConnectionAttempt((attempt) => attempt + 1);
   };
 
@@ -780,7 +803,28 @@ export default function Home() {
           )}
         </>
       )}
-      {status !== "ready" && (
+      {((status === "loading" && isLoadingExiting) || status === "intro" || status === "intro-exiting") && (
+        <div
+          className={`${styles.introScreen} ${status === "intro-exiting" ? styles.introExit : ""}`}
+          onAnimationEnd={() => setStatus("ready")}
+        >
+          <video
+            ref={introVideoRef}
+            src="/gcu-campus-intro.mp4"
+            aria-label="Garden City University introduction"
+            preload="auto"
+            muted
+            playsInline
+            onPlaying={() => setIntroNeedsPlay(false)}
+            onEnded={finishIntro}
+            onError={status === "intro" ? finishIntro : undefined}
+          />
+          {status === "intro" && introNeedsPlay && (
+            <button className={styles.introPlay} type="button" onClick={playIntro}>Play introduction</button>
+          )}
+        </div>
+      )}
+      {(status === "loading" || status === "error") && (
         <div
           className={`${styles.status} ${status === "error" ? styles.connectionError : styles.loadingScreen} ${isLoadingExiting && status === "loading" ? styles.loadingExit : ""}`}
           role={status === "error" ? "alert" : "status"}
