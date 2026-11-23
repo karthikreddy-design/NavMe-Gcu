@@ -1,7 +1,20 @@
-.controls,
-.credit {
+.rail {
   position: absolute;
   z-index: 7;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.rail[data-credit-hidden="true"] {
+  padding-right: 88px;
+}
+
+.controls,
+.credit {
+  position: relative;
   height: 44px;
   border: 1px solid #315363;
   border-radius: 20px;
@@ -15,6 +28,9 @@
 
 .controls {
   display: grid;
+  flex: 1 1 242px;
+  max-width: 242px;
+  min-width: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
   justify-items: center;
@@ -60,18 +76,38 @@
 .button:disabled { cursor: wait; opacity: 0.65; }
 
 .credit {
-  display: grid;
-  height: 60px;
-  margin-top: -16px;
-  align-content: center;
-  justify-items: center;
-  gap: 2px;
-  padding: 4px 6px;
-  text-align: center;
+  display: flex;
+  flex: 0 1 auto;
+  height: 54px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 12px;
 }
-.creditCaption { color: #9db8c6; font-size: 10px; font-weight: 600; line-height: 12px; }
-.creditName { color: #f3fbff; font-size: 17px; font-weight: 750; line-height: 18px; letter-spacing: -0.035em; }
-.creditName span { color: #73deed; }
+.creditLogo {
+  display: grid;
+  flex: 0 0 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.creditLogo img {
+  display: block;
+  max-width: none;
+  margin: -3px;
+}
+.creditText {
+  display: grid;
+  gap: 3px;
+  padding-left: 8px;
+  border-left: 1px solid #315363;
+}
+.creditCaption { color: #9de6f1; font-size: 10px; line-height: 11px; }
+.creditName { font-size: 12px; font-weight: 750; line-height: 14px; }
+
+.rail[data-compact="true"] .credit { gap: 7px; padding-inline: 10px; }
+.rail[data-compact="true"] .creditName { font-size: 11px; }
 
 @media (prefers-reduced-motion: reduce) {
   .button { transition: none; }

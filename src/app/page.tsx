@@ -29,7 +29,7 @@ const SurveyWorkspace = dynamic(() => import("@/components/SurveyWorkspace"), { 
 
 const GCU_SPACE_ID = "jdjvM17BPEh";
 const SDK_CONNECTION_TIMEOUT_MS = 60_000;
-const MINIMUM_LOADING_SCREEN_MS = 2_000;
+const MINIMUM_LOADING_SCREEN_MS = 1_000;
 const LOADING_EXIT_MS = 550;
 
 type BuildingStorageSnapshot = {

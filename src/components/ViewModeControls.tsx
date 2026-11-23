@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import Image from "next/image";
 import { flushSync } from "react-dom";
 import ViewModeIcon from "./ViewModeIcon";
 import styles from "./ViewModeControls.module.css";
@@ -25,7 +26,7 @@ export default function ViewModeControls({ viewer, activeView, busy, onChange, h
   const [focusedView, setFocusedView] = useState<CampusView | null>(null);
   const visibleTooltip = hoveredView ?? focusedView;
   const [frame, setFrame] = useState<{
-    left: number; top: number; width: number; creditLeft: number; creditWidth: number;
+    left: number; bottom: number; width: number;
   } | null>(null);
   useEffect(() => {
     const iframe = viewer.querySelector("iframe");
@@ -33,27 +34,26 @@ export default function ViewModeControls({ viewer, activeView, busy, onChange, h
     const measure = () => {
       const parent = viewer.getBoundingClientRect();
       const rect = iframe.getBoundingClientRect();
-      const creditWidth = rect.width < 420 ? 112 : 148;
-      const reservedWidth = hideCredit ? 80 : creditWidth;
-      setFrame({ left: rect.left - parent.left + 8,
-        top: rect.bottom - parent.top - 66,
-        width: Math.min(242, Math.max(0, rect.width - reservedWidth - 24)),
-        creditLeft: rect.right - parent.left - creditWidth - 8,
-        creditWidth });
+      setFrame({
+        left: rect.left - parent.left + 8,
+        bottom: parent.bottom - rect.bottom + 22,
+        width: Math.max(0, rect.width - 16),
+      });
     };
     const observer = new ResizeObserver(measure);
     observer.observe(viewer);
     observer.observe(iframe);
     measure();
     return () => observer.disconnect();
-  }, [viewer, hideCredit]);
+  }, [viewer]);
 
   if (!frame) return null;
   return <>
   {hoveredView && <div className={styles.hoverDismiss} aria-hidden="true"
     onPointerEnter={() => flushSync(() => setHoveredView(null))}
     onPointerMove={() => flushSync(() => setHoveredView(null))} />}
-  <nav className={styles.controls} style={{ left: frame.left, top: frame.top, width: frame.width }} aria-label="Campus view controls" aria-busy={busy}
+  <div className={styles.rail} style={frame} data-compact={frame.width < 334} data-credit-hidden={hideCredit}>
+  <nav className={styles.controls} aria-label="Campus view controls" aria-busy={busy}
     onKeyDown={(event) => { if (event.key === "Escape") { setHoveredView(null); setFocusedView(null); } }}>
     {views.map(({ view, label, tooltip }) => <button key={view} type="button" className={styles.button}
       aria-label={label} aria-describedby={`${tooltipId}-${view}`} aria-pressed={activeView === view} disabled={busy}
@@ -66,10 +66,15 @@ export default function ViewModeControls({ viewer, activeView, busy, onChange, h
       <span className={styles.tooltip} id={`${tooltipId}-${view}`} role="tooltip" data-visible={visibleTooltip === view}>{tooltip}</span>
     </button>)}
   </nav>
-  {!hideCredit && <div className={styles.credit} style={{ left: frame.creditLeft, top: frame.top, width: frame.creditWidth }} data-testid="navme-credit">
-    <strong className={styles.creditName}>Nav<span>Me</span></strong>{" "}
-    <span className={styles.creditCaption}>powered by</span>{" "}
-    <span className={styles.creditCaption}>MetaDigi Labs, Inc.</span>
+  {!hideCredit && <div className={styles.credit} data-testid="navme-credit">
+    <span className={styles.creditLogo}>
+      <Image src="/branding/navme-logo.jpg" alt="NavMe" width={36} height={36} />
+    </span>
+    <span className={styles.creditText}>
+      <span className={styles.creditCaption}>Powered by</span>
+      <strong className={styles.creditName}>MetaDigi Labs INC.</strong>
+    </span>
   </div>}
+  </div>
   </>;
 }
