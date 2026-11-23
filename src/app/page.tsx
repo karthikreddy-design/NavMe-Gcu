@@ -803,7 +803,7 @@ export default function Home() {
           )}
         </>
       )}
-      {((status === "loading" && isLoadingExiting) || status === "intro" || status === "intro-exiting") && (
+      {(status === "loading" || status === "intro" || status === "intro-exiting") && (
         <div
           className={`${styles.introScreen} ${status === "intro-exiting" ? styles.introExit : ""}`}
           onAnimationEnd={() => setStatus("ready")}
