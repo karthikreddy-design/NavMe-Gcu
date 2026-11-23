@@ -1,4 +1,11 @@
 .viewer {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --survey-toolbar-top: calc(var(--safe-top) + 84px);
+  --survey-panel-top: calc(var(--safe-top) + 96px);
+  --survey-panel-bottom-offset: calc(var(--survey-panel-top) + var(--safe-bottom) + 16px);
   position: fixed;
   inset: 0;
   width: 100%;
@@ -10,9 +17,7 @@
 
 .container {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
 }
 
 .container iframe {
@@ -26,6 +31,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) auto;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
 }
 
 .withSelectedSpace .container {
@@ -53,14 +59,17 @@
 }
 
 .error {
-  max-width: 32rem;
+  width: min(100%, 32rem);
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .loadingScreen {
   inset: 0;
   z-index: 14;
-  padding: 2rem;
+  padding: max(1rem, var(--safe-top)) max(1rem, var(--safe-right))
+    max(1rem, var(--safe-bottom)) max(1rem, var(--safe-left));
+  overflow: auto;
   border-radius: 0;
   background: #000;
   opacity: 1;
@@ -124,13 +133,13 @@
 }
 
 .universityLogo {
-  width: clamp(120px, 16vw, 180px);
+  width: min(clamp(100px, 16vw, 180px), 25dvh);
   height: auto;
   flex-shrink: 0;
 }
 
 .motto {
-  margin: 8px 0 30px;
+  margin: 8px 0 clamp(10px, 4dvh, 30px);
   font-size: clamp(12px, 1.7vw, 17px);
   font-weight: 400;
   letter-spacing: 0.14em;
@@ -149,7 +158,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 48px;
+  margin-top: clamp(12px, 6dvh, 48px);
   font-size: 12px;
   letter-spacing: 0.04em;
 }
@@ -157,6 +166,7 @@
 .spinner {
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
   border: 2px solid rgb(255 255 255 / 20%);
   border-top-color: #fff;
   border-radius: 50%;
@@ -193,7 +203,11 @@
 }
 
 .connectionError {
-  inset: auto 1rem 1rem;
+  inset: auto calc(var(--safe-right) + 1rem) calc(var(--safe-bottom) + 1rem) calc(var(--safe-left) + 1rem);
+  z-index: 13;
+  max-height: calc(100% - var(--safe-top) - var(--safe-bottom) - 2rem);
+  overflow: auto;
+  pointer-events: auto;
   padding: 1rem;
   border: 1px solid rgb(255 148 148 / 50%);
   border-radius: 0.75rem;
@@ -309,15 +323,15 @@
 /* An opaque header replaces the viewer's top-left branding footprint only. */
 .campusBranding {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: var(--safe-top);
+  left: var(--safe-left);
   z-index: 6;
   display: flex;
   align-items: center;
   gap: 12px;
   width: max-content;
-  max-width: calc(100% - 64px);
-  height: 68px;
+  max-width: calc(100% - var(--safe-left) - var(--safe-right) - 16px);
+  min-height: 68px;
   padding: 12px 16px;
   border-right: 1px solid #294a5a;
   border-bottom: 1px solid #294a5a;
@@ -336,25 +350,22 @@
   object-fit: contain;
 }
 
-.brandingText { min-width: 0; }
+.brandingText { min-width: 0; overflow-wrap: anywhere; }
 .brandingText p { margin: 0; }
 .brandingTitle { font-size: 17px; font-weight: 650; line-height: 1.25; letter-spacing: -0.02em; }
 .brandingText .brandingSubtitle { margin-top: 3px; color: #9de6f1; font-size: 12px; line-height: 1.25; letter-spacing: 0.03em; }
 
 .viewer[data-survey-authorized="true"] {
-  --survey-toolbar-top: 84px;
-  --survey-panel-top: 140px;
-  --survey-panel-bottom-offset: 156px;
+  --survey-panel-top: calc(var(--survey-toolbar-top) + 56px);
 }
 
-@media (max-width: 680px) {
-  .campusBranding { width: max-content; height: 48px; gap: 10px; padding: 6px 10px; border-radius: 0 0 10px 0; }
+@media (max-width: 680px), (max-height: 480px) {
+  .campusBranding { min-height: 48px; gap: 10px; padding: 6px 10px; border-radius: 0 0 10px 0; }
   .headerLogo { width: 32px; height: 32px; }
   .brandingTitle { font-size: 13px; line-height: 1.25; }
   .brandingText .brandingSubtitle { margin-top: 2px; font-size: 10px; }
-  .viewer[data-survey-authorized="true"] {
-    --survey-toolbar-top: 60px;
-    --survey-panel-top: 112px;
-    --survey-panel-bottom-offset: 128px;
+  .viewer {
+    --survey-toolbar-top: calc(var(--safe-top) + 60px);
+    --survey-panel-top: calc(var(--safe-top) + 68px);
   }
 }

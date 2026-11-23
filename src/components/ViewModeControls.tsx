@@ -24,26 +24,29 @@ export default function ViewModeControls({ viewer, activeView, busy, onChange, h
   const [hoveredView, setHoveredView] = useState<CampusView | null>(null);
   const [focusedView, setFocusedView] = useState<CampusView | null>(null);
   const visibleTooltip = hoveredView ?? focusedView;
-  const [frame, setFrame] = useState<{ left: number; top: number; width: number; creditLeft: number } | null>(null);
+  const [frame, setFrame] = useState<{
+    left: number; top: number; width: number; creditLeft: number; creditWidth: number;
+  } | null>(null);
   useEffect(() => {
     const iframe = viewer.querySelector("iframe");
     if (!iframe) return;
     const measure = () => {
       const parent = viewer.getBoundingClientRect();
       const rect = iframe.getBoundingClientRect();
-      // Measured native footprints: left toolbar 242×40; right buttons 80×38.
-      // Both covers align on a 40px rail, 22px above the viewer bottom.
+      const creditWidth = rect.width < 420 ? 112 : 148;
+      const reservedWidth = hideCredit ? 80 : creditWidth;
       setFrame({ left: rect.left - parent.left + 8,
-        top: rect.bottom - parent.top - 62,
-        width: Math.min(242, Math.max(0, rect.width - 96)),
-        creditLeft: rect.right - parent.left - 88 });
+        top: rect.bottom - parent.top - 66,
+        width: Math.min(242, Math.max(0, rect.width - reservedWidth - 24)),
+        creditLeft: rect.right - parent.left - creditWidth - 8,
+        creditWidth });
     };
     const observer = new ResizeObserver(measure);
     observer.observe(viewer);
     observer.observe(iframe);
     measure();
     return () => observer.disconnect();
-  }, [viewer]);
+  }, [viewer, hideCredit]);
 
   if (!frame) return null;
   return <>
@@ -63,9 +66,10 @@ export default function ViewModeControls({ viewer, activeView, busy, onChange, h
       <span className={styles.tooltip} id={`${tooltipId}-${view}`} role="tooltip" data-visible={visibleTooltip === view}>{tooltip}</span>
     </button>)}
   </nav>
-  {!hideCredit && <div className={styles.credit} style={{ left: frame.creditLeft, top: frame.top }} data-testid="navme-credit">
-    <span className={styles.creditCaption}>Powered by</span>
-    <strong className={styles.creditName}>Nav<span>Me</span></strong>
+  {!hideCredit && <div className={styles.credit} style={{ left: frame.creditLeft, top: frame.top, width: frame.creditWidth }} data-testid="navme-credit">
+    <strong className={styles.creditName}>Nav<span>Me</span></strong>{" "}
+    <span className={styles.creditCaption}>powered by</span>{" "}
+    <span className={styles.creditCaption}>MetaDigi Labs, Inc.</span>
   </div>}
   </>;
 }

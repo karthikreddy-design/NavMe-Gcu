@@ -23,9 +23,11 @@
 }
 
 .crowded {
-  inset: 16px auto 80px 16px;
-  width: min(176px, calc(100% - 32px));
+  right: auto;
+  bottom: auto;
+  width: min(176px, calc(100% - var(--safe-left, 0px) - var(--safe-right, 0px) - 32px));
   overflow: auto;
+  overscroll-behavior: contain;
   pointer-events: auto;
 }
 

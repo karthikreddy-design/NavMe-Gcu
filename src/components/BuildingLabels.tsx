@@ -26,6 +26,7 @@ type ProjectionViewport = {
   top: number;
   w: number;
   h: number;
+  headerBottom: number;
 };
 
 export default function BuildingLabels({
@@ -56,11 +57,13 @@ export default function BuildingLabels({
     top: 0,
     w: 0,
     h: 0,
+    headerBottom: 0,
   });
 
   useEffect(() => {
     const subscription = sdk.Camera.pose.subscribe(setPose);
     const iframe = viewer.querySelector("iframe");
+    const header = viewer.querySelector("header");
     const updateViewport = () => {
       const viewerRect = viewer.getBoundingClientRect();
       const frameRect = iframe?.getBoundingClientRect();
@@ -73,6 +76,7 @@ export default function BuildingLabels({
         top: frameRect.top - viewerRect.top,
         w: frameRect.width,
         h: frameRect.height,
+        headerBottom: (header?.getBoundingClientRect().bottom ?? frameRect.top) - viewerRect.top,
       });
     };
     updateViewport();
@@ -82,6 +86,7 @@ export default function BuildingLabels({
     if (iframe) {
       observer.observe(iframe);
     }
+    if (header) observer.observe(header);
 
     return () => {
       subscription.cancel();
@@ -125,6 +130,8 @@ export default function BuildingLabels({
   const margin = 16;
   const gap = 10;
   const labelHeight = 36;
+  const labelAreaTop = Math.max(viewport.top, viewport.headerBottom) + margin;
+  const labelAreaHeight = Math.max(0, viewport.top + viewport.h - 80 - labelAreaTop);
   const placed: { x: number; y: number; width: number }[] = [];
   const positionedBuildings = [...projectedBuildings]
     .sort((a, b) => a.building.id.localeCompare(b.building.id))
@@ -135,7 +142,7 @@ export default function BuildingLabels({
       ));
       const minX = viewport.left + margin;
       const maxX = Math.max(minX, viewport.left + viewport.w - margin - labelWidth);
-      const minY = viewport.top + margin;
+      const minY = labelAreaTop;
       const maxY = Math.max(minY, viewport.top + viewport.h - 80 - labelHeight);
       const preferredX = Math.max(minX, Math.min(maxX, item.x - labelWidth / 2));
       const preferredY = Math.max(minY, Math.min(maxY, item.y - labelHeight - 22));
@@ -155,10 +162,14 @@ export default function BuildingLabels({
       placed.push({ ...position, width: labelWidth });
       return { ...item, labelX: position.x, labelY: position.y, labelWidth, fits: !!slot };
     });
-  const crowded = positionedBuildings.some((item) => !item.fits);
+  const crowded = labelAreaHeight < labelHeight || positionedBuildings.some((item) => !item.fits);
 
   return (
-    <div className={`${styles.layer} ${crowded ? styles.crowded : ""}`} aria-label="Campus buildings">
+    <div
+      className={`${styles.layer} ${crowded ? styles.crowded : ""}`}
+      style={crowded ? { top: labelAreaTop, left: viewport.left + margin, height: labelAreaHeight } : undefined}
+      aria-label="Campus buildings"
+    >
       {!crowded && (
         <svg className={styles.connectors} aria-hidden="true">
           {positionedBuildings.filter((item) => item.hasAnchor).map(({ building, x, y, labelX, labelY, labelWidth }) => (
